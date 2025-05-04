@@ -1,11 +1,12 @@
-// screens/HomeScreen.js
+// screens/MeseroHome.js
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 
-export default function HomeScreen({ onLogout }) {
+export default function MeseroHome({ usuario, onLogout }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bienvenido a Gestuino 🎉</Text>
+      <Text style={styles.title}>Vista de Mesero</Text>
+      <Text>Hola, {usuario.nombre}</Text>
       <Button title="Cerrar Sesión" onPress={onLogout} />
     </View>
   );
@@ -13,5 +14,5 @@ export default function HomeScreen({ onLogout }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, marginBottom: 20 },
+  title: { fontSize: 24, marginBottom: 10 },
 });

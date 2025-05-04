@@ -1,19 +1,24 @@
 // App.js
 import React, { useState } from 'react';
 import LoginScreen from './screens/LoginScreen';
-import RegisterScreen from './screens/RegisterScreen';
-import HomeScreen from './screens/HomeScreen';
+import AdminHome from './screens/AdminHome';
+import MeseroHome from './screens/MeseroHome';
 
 export default function App() {
-  const [screen, setScreen] = useState('login');
+  const [usuario, setUsuario] = useState(null);
 
-  if (screen === 'home') return <HomeScreen onLogout={() => setScreen('login')} />;
-  if (screen === 'register') return <RegisterScreen onGoBack={() => setScreen('login')} />;
+  if (!usuario) {
+    return <LoginScreen onLogin={(user) => setUsuario(user)} />;
+  }
 
-  return (
-    <LoginScreen
-      onLogin={() => setScreen('home')}
-      onGoToRegister={() => setScreen('register')}
-    />
-  );
+  if (usuario.rol === 'admin') {
+    return <AdminHome usuario={usuario} onLogout={() => setUsuario(null)} />;
+  }
+
+  if (usuario.rol === 'mesero') {
+    return <MeseroHome usuario={usuario} onLogout={() => setUsuario(null)} />;
+  }
+
+  // En caso de rol desconocido
+  return <LoginScreen onLogin={(user) => setUsuario(user)} />;
 }
