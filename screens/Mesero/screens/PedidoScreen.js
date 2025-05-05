@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, Button, Picker
+  View, Text, FlatList, TouchableOpacity, TextInput
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import styles from '../styles/pedidoStyles';
 import { usePedidoController } from '../controllers/pedidoController';
 
@@ -10,9 +11,23 @@ export default function PedidoScreen({ navigation }) {
     mesas, mesaSeleccionada, setMesaSeleccionada,
     estadoMesa, setEstadoMesa, productos,
     pedido, pedidosExistentes,
-    agregarProducto, eliminarProductoSeleccionado, eliminarPedidoExistente,
+    agregarProducto, eliminarProductoPorCantidad, eliminarPedidoExistente,
     actualizarEstadoMesa, enviarPedido
   } = usePedidoController(navigation);
+
+  const [cantidadesEliminar, setCantidadesEliminar] = useState({});
+
+  const groupedPedido = Object.values(
+    pedido.reduce((acc, prod) => {
+      const key = prod.id;
+      if (!acc[key]) {
+        acc[key] = { ...prod, cantidad: 1 };
+      } else {
+        acc[key].cantidad += 1;
+      }
+      return acc;
+    }, {})
+  );
 
   return (
     <View style={styles.container}>
@@ -42,7 +57,9 @@ export default function PedidoScreen({ navigation }) {
             <Picker.Item label="ocupada" value="ocupada" />
             <Picker.Item label="cerrada" value="cerrada" />
           </Picker>
-          <Button title="Actualizar estado" onPress={actualizarEstadoMesa} />
+          <TouchableOpacity style={styles.botonRojo} onPress={actualizarEstadoMesa}>
+            <Text style={styles.botonTexto}>ACTUALIZAR ESTADO</Text>
+          </TouchableOpacity>
         </>
       )}
 
@@ -57,25 +74,54 @@ export default function PedidoScreen({ navigation }) {
         )}
       />
 
-      {pedido.length > 0 && (
+      {groupedPedido.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>Seleccionados:</Text>
-          {pedido.map((p, i) => (
-            <View key={i} style={styles.row}>
-              <Text>{p.nombre} - ${p.precio}</Text>
-              <TouchableOpacity onPress={() => eliminarProductoSeleccionado(i)}>
-                <Text style={styles.delete}>❌</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+          <FlatList
+            data={groupedPedido}
+            keyExtractor={(item) => item.id.toString()}
+            style={{ maxHeight: 200 }}
+            renderItem={({ item }) => (
+              <View style={styles.row}>
+                <Text>{item.cantidad} x {item.nombre} - ${item.cantidad * item.precio}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TextInput
+                    style={{
+                      borderWidth: 1,
+                      width: 40,
+                      height: 35,
+                      marginHorizontal: 5,
+                      textAlign: 'center',
+                      backgroundColor: 'white'
+                    }}
+                    keyboardType="numeric"
+                    placeholder="1"
+                    value={cantidadesEliminar[item.id] || ''}
+                    onChangeText={(text) =>
+                      setCantidadesEliminar({ ...cantidadesEliminar, [item.id]: text })
+                    }
+                  />
+                  <TouchableOpacity
+                    onPress={() =>
+                      eliminarProductoPorCantidad(item.id, parseInt(cantidadesEliminar[item.id]) || 1)
+                    }
+                  >
+                    <Text style={styles.delete}>❌</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          />
         </>
       )}
 
-      <Button
-        title="Enviar Pedido"
+      <TouchableOpacity
+        style={[styles.botonRojo, { marginTop: 15 }]}
         onPress={enviarPedido}
         disabled={!mesaSeleccionada || pedido.length === 0}
-      />
+      >
+        <Text style={styles.botonTexto}>ENVIAR PEDIDO</Text>
+      </TouchableOpacity>
 
       {pedidosExistentes.length > 0 && (
         <>

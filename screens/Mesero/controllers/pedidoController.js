@@ -61,6 +61,24 @@ export function usePedidoController(navigation) {
     setPedido(nuevoPedido);
   };
 
+  // ✅ NUEVA FUNCIÓN: Elimina una cantidad específica de un producto
+  const eliminarProductoPorCantidad = (productoId, cantidadEliminar) => {
+    setPedido((prev) => {
+      const nuevaLista = [];
+      let eliminados = 0;
+
+      for (let item of prev) {
+        if (item.id === productoId && eliminados < cantidadEliminar) {
+          eliminados++;
+          continue;
+        }
+        nuevaLista.push(item);
+      }
+
+      return nuevaLista;
+    });
+  };
+
   const agregarProducto = (producto) => {
     setPedido([...pedido, producto]);
   };
@@ -118,7 +136,8 @@ export function usePedidoController(navigation) {
     mesas, mesaSeleccionada, setMesaSeleccionada,
     estadoMesa, setEstadoMesa, productos,
     pedido, pedidosExistentes,
-    agregarProducto, eliminarProductoSeleccionado, eliminarPedidoExistente,
+    agregarProducto, eliminarProductoSeleccionado,
+    eliminarProductoPorCantidad, eliminarPedidoExistente,
     actualizarEstadoMesa, enviarPedido
   };
 }

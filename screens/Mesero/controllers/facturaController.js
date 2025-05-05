@@ -45,7 +45,7 @@ export function useFacturaController(mesa, navigation) {
       Alert.alert('Error', 'No se pudo cerrar la cuenta.');
     } else {
       Alert.alert('Cuenta cerrada', 'La mesa ha sido liberada.');
-      navigation.goBack();
+      navigation.navigate('MeseroHome');
     }
   };
 
@@ -55,7 +55,6 @@ export function useFacturaController(mesa, navigation) {
       console.log(`${p.cantidad} x ${p.productos.nombre} = $${p.cantidad * p.productos.precio}`);
     });
     console.log(`TOTAL: $${total}`);
-    Alert.alert('Factura generada', 'Verifica la consola para la impresión simulada.');
   };
 
   return {

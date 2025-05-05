@@ -49,4 +49,17 @@ export default StyleSheet.create({
     color: 'red',
     fontWeight: 'bold',
   },
+  botonRojo: {
+    backgroundColor: '#a94442',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  botonTexto: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  
 });
