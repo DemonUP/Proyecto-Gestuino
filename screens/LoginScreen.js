@@ -18,27 +18,59 @@ export default function LoginScreen({ onLogin }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Gestuino</Text>
+      <Text style={styles.title}>Gestuino 🍽️</Text>
+
       <TextInput
         placeholder="Correo"
+        placeholderTextColor="#555"
         style={styles.input}
         value={correo}
         onChangeText={setCorreo}
       />
       <TextInput
         placeholder="Contraseña"
+        placeholderTextColor="#555"
         secureTextEntry
         style={styles.input}
         value={contrasena}
         onChangeText={setContrasena}
       />
-      <Button title="Iniciar Sesión" onPress={handleLogin} />
+
+      <View style={styles.boton}>
+        <Button title="Iniciar Sesión" color="#a94442" onPress={handleLogin} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-  input: { borderWidth: 1, padding: 10, marginVertical: 5, borderRadius: 5 },
+  container: {
+    flex: 1,
+    backgroundColor: '#fddede', // fondo rosado claro
+    justifyContent: 'center',
+    padding: 25,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 30,
+    color: '#800000',
+  },
+  input: {
+    backgroundColor: '#fff',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    marginVertical: 8,
+    borderRadius: 8,
+    fontSize: 16,
+    color: '#333',
+  },
+  boton: {
+    marginTop: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
 });

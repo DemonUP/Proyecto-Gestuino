@@ -1,8 +1,17 @@
-// App.js
 import React, { useState } from 'react';
 import LoginScreen from './screens/LoginScreen';
-import AdminHome from './screens/AdminHome';
-import MeseroHome from './screens/MeseroHome';
+import AdminHome from './screens/Admin/AdminHome';
+
+import MeseroHome from './screens/Mesero/MeseroHome';
+import MesaScreen from './screens/Mesero/MesaScreen';
+import PedidoScreen from './screens/Mesero/PedidoScreen';
+import FacturaScreen from './screens/Mesero/FacturaScreen';
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons'; // <- Importa el ícono
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [usuario, setUsuario] = useState(null);
@@ -16,9 +25,38 @@ export default function App() {
   }
 
   if (usuario.rol === 'mesero') {
-    return <MeseroHome usuario={usuario} onLogout={() => setUsuario(null)} />;
+    return (
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="MeseroHome"
+          screenOptions={({ navigation }) => ({
+            headerRight: () => (
+              <Ionicons
+                name="home-outline"
+                size={24}
+                color="black"
+                style={{ marginRight: 15 }}
+                onPress={() => navigation.navigate('MeseroHome')}
+              />
+            ),
+          })}
+        >
+          <Stack.Screen name="MeseroHome" options={{ title: 'Inicio Mesero' }}>
+            {(props) => (
+              <MeseroHome
+                {...props}
+                usuario={usuario}
+                onLogout={() => setUsuario(null)}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Mesas" component={MesaScreen} />
+          <Stack.Screen name="Pedido" component={PedidoScreen} />
+          <Stack.Screen name="Factura" component={FacturaScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
   }
 
-  // En caso de rol desconocido
   return <LoginScreen onLogin={(user) => setUsuario(user)} />;
 }
