@@ -3,13 +3,13 @@ import LoginScreen from './screens/LoginScreen';
 import AdminHome from './screens/Admin/AdminHome';
 
 import MeseroHome from './screens/Mesero/MeseroHome';
-import MesaScreen from './screens/Mesero/MesaScreen';
-import PedidoScreen from './screens/Mesero/PedidoScreen';
-import FacturaScreen from './screens/Mesero/FacturaScreen';
+import MesaScreen from './screens/Mesero/screens/MesaScreen';
+import PedidoScreen from './screens/Mesero/screens/PedidoScreen';
+import FacturaScreen from './screens/Mesero/screens/FacturaScreen';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons'; // <- Importa el ícono
+import { Ionicons } from '@expo/vector-icons';
 
 const Stack = createNativeStackNavigator();
 
