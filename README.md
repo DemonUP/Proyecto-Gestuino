@@ -1,10 +1,10 @@
-#Gestuino - Gestor de Restaurante
+# Gestuino - Gestor de Restaurante
 
 Aplicación móvil para gestión de pedidos y mesas en un restaurante. Diseñada para meseros, con enfoque en simplicidad, rapidez y control de flujo de atención. Usa Supabase para la base de datos y Expo para el frontend.
 
 ---
 
-##Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 gestuino/
@@ -19,7 +19,7 @@ gestuino/
 
 ---
 
-##Instalación
+## Instalación
 
 ### Requisitos
 
@@ -34,7 +34,7 @@ npm i
 
 ---
 
-##Ejecución del proyecto
+## Ejecución del proyecto
 
 ```bash
 npx expo start
@@ -42,7 +42,7 @@ npx expo start
 
 ---
 
-##Funcionalidades principales
+## Funcionalidades principales
 
 - Login con Supabase
 - Vista de mesas (estado: disponible/ocupada)
