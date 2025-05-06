@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import LoginScreen from './screens/LoginScreen';
+
 import AdminHome from './screens/Admin/AdminHome';
+import RolesScreen from './screens/Admin/screens/RolesScreen';
+import ReportesScreen from './screens/Admin/screens/ReportesScreen';
+import InventarioScreen from './screens/Admin/screens/InventarioScreen';
+import MenuScreen from './screens/Admin/screens/MenuScreen';
 
 import MeseroHome from './screens/Mesero/MeseroHome';
 import MesaScreen from './screens/Mesero/screens/MesaScreen';
@@ -16,17 +21,43 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   const [usuario, setUsuario] = useState(null);
 
+  // LOGIN
   if (!usuario) {
     return <LoginScreen onLogin={(user) => setUsuario(user)} />;
   }
 
-  if (usuario.rol === 'admin') {
-    return <AdminHome usuario={usuario} onLogout={() => setUsuario(null)} />;
-  }
-
-  if (usuario.rol === 'mesero') {
-    return (
-      <NavigationContainer>
+  return (
+    <NavigationContainer>
+      {usuario.rol === 'admin' ? (
+        <Stack.Navigator
+          initialRouteName="AdminHome"
+          screenOptions={({ navigation }) => ({
+            headerRight: () => (
+              <Ionicons
+                name="home-outline"
+                size={24}
+                color="black"
+                style={{ marginRight: 15 }}
+                onPress={() => navigation.navigate('AdminHome')}
+              />
+            ),
+          })}
+        >
+          <Stack.Screen name="AdminHome" options={{ title: 'Inicio Administrador' }}>
+            {(props) => (
+              <AdminHome
+                {...props}
+                usuario={usuario}
+                onLogout={() => setUsuario(null)}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Roles" component={RolesScreen} />
+          <Stack.Screen name="Reportes" component={ReportesScreen} />
+          <Stack.Screen name="Inventario" component={InventarioScreen} />
+          <Stack.Screen name="Menu" component={MenuScreen} />
+        </Stack.Navigator>
+      ) : (
         <Stack.Navigator
           initialRouteName="MeseroHome"
           screenOptions={({ navigation }) => ({
@@ -54,9 +85,7 @@ export default function App() {
           <Stack.Screen name="Pedido" component={PedidoScreen} />
           <Stack.Screen name="Factura" component={FacturaScreen} />
         </Stack.Navigator>
-      </NavigationContainer>
-    );
-  }
-
-  return <LoginScreen onLogin={(user) => setUsuario(user)} />;
+      )}
+    </NavigationContainer>
+  );
 }
