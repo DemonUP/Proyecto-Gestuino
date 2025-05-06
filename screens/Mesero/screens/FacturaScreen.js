@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, Button } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useFacturaController } from '../controllers/facturaController';
 import styles from '../styles/facturaStyles'; // Importa estilos desde archivo externo
 
@@ -36,9 +36,23 @@ export default function FacturaScreen({ route, navigation }) {
 
       <Text style={styles.total}>Total: ${total}</Text>
 
-      <Button title="Imprimir" onPress={handleImprimir} disabled={pedidos.length === 0} />
+      <TouchableOpacity
+        style={[styles.button, pedidos.length === 0 && styles.buttonDisabled]}
+        onPress={handleImprimir}
+        disabled={pedidos.length === 0}
+      >
+        <Text style={styles.buttonText}>Imprimir</Text>
+      </TouchableOpacity>
+
       <View style={{ height: 10 }} />
-      <Button title="Cerrar Cuenta" onPress={cerrarCuenta} disabled={pedidos.length === 0} />
+
+      <TouchableOpacity
+        style={[styles.button, pedidos.length === 0 && styles.buttonDisabled]}
+        onPress={cerrarCuenta}
+        disabled={pedidos.length === 0}
+      >
+        <Text style={styles.buttonText}>Cerrar Cuenta</Text>
+      </TouchableOpacity>
 
       {mostrarToast && (
         <View style={styles.toast}>
