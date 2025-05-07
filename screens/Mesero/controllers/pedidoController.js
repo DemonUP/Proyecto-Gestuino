@@ -1,15 +1,28 @@
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import supabase from '../../../supabase';
+import { obtenerUsuarioDeSesion } from '../../../supabase';
+
 
 export function usePedidoController(navigation) {
   const [mesas, setMesas] = useState([]);
   const [mesaSeleccionada, setMesaSeleccionada] = useState(null);
   const [estadoMesa, setEstadoMesa] = useState('disponible');
+  const [usuario, setUsuario] = useState(null);
+
 
   const [productos, setProductos] = useState([]);
   const [pedido, setPedido] = useState([]);
   const [pedidosExistentes, setPedidosExistentes] = useState([]);
+
+  useEffect(() => {
+    const cargarUsuario = async () => {
+      const u = await obtenerUsuarioDeSesion();
+      setUsuario(u);
+    };
+    cargarUsuario();
+  }, []);
+
 
   useEffect(() => {
     obtenerMesas();
@@ -117,6 +130,7 @@ export function usePedidoController(navigation) {
       producto_id: producto.id,
       cantidad: 1,
       estado: 'pendiente',
+      usuario_id: usuario.id,
     }));
 
     const { error } = await supabase.from('pedidos').insert(inserts);

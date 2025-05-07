@@ -5,6 +5,7 @@ import AdminHome from './screens/Admin/AdminHome';
 import RolesScreen from './screens/Admin/screens/RolesScreen';
 import ReportesScreen from './screens/Admin/screens/ReportesScreen';
 import InventarioScreen from './screens/Admin/screens/InventarioScreen';
+import GraficosReportes from './screens/Admin/screens/GraficosReportes';
 import MenuScreen from './screens/Admin/screens/MenuScreen';
 
 import MeseroHome from './screens/Mesero/MeseroHome';
@@ -30,33 +31,34 @@ export default function App() {
     <NavigationContainer>
       {usuario.rol === 'admin' ? (
         <Stack.Navigator
-          initialRouteName="AdminHome"
-          screenOptions={({ navigation }) => ({
-            headerRight: () => (
-              <Ionicons
-                name="home-outline"
-                size={24}
-                color="black"
-                style={{ marginRight: 15 }}
-                onPress={() => navigation.navigate('AdminHome')}
-              />
-            ),
-          })}
-        >
-          <Stack.Screen name="AdminHome" options={{ title: 'Inicio Administrador' }}>
-            {(props) => (
-              <AdminHome
-                {...props}
-                usuario={usuario}
-                onLogout={() => setUsuario(null)}
-              />
-            )}
-          </Stack.Screen>
-          <Stack.Screen name="Roles" component={RolesScreen} />
-          <Stack.Screen name="Reportes" component={ReportesScreen} />
-          <Stack.Screen name="Inventario" component={InventarioScreen} />
-          <Stack.Screen name="Menu" component={MenuScreen} />
-        </Stack.Navigator>
+        initialRouteName="AdminHome"
+        screenOptions={({ navigation }) => ({
+          headerRight: () => (
+            <Ionicons
+              name="home-outline"
+              size={24}
+              color="black"
+              style={{ marginRight: 15 }}
+              onPress={() => navigation.navigate('AdminHome')}
+            />
+          ),
+        })}
+      >
+        <Stack.Screen name="AdminHome" options={{ title: 'Inicio Administrador' }}>
+          {(props) => (
+            <AdminHome
+              {...props}
+              usuario={usuario}
+              onLogout={() => setUsuario(null)}
+            />
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="Roles" component={RolesScreen} />
+        <Stack.Screen name="Reportes" component={ReportesScreen} />
+        <Stack.Screen name="GraficosReportes" component={GraficosReportes} />
+        <Stack.Screen name="Inventario" component={InventarioScreen} />
+        <Stack.Screen name="Menu" component={MenuScreen} />
+      </Stack.Navigator>      
       ) : (
         <Stack.Navigator
           initialRouteName="MeseroHome"
