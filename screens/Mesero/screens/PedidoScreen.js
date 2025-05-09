@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, TextInput
+  View, Text, FlatList, TouchableOpacity, TextInput,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import styles from '../styles/pedidoStyles';
+import styles from '../styles/pedidoStyles'; // 👈 asegúrate que esto esté al inicio del archivo
 import { usePedidoController } from '../controllers/pedidoController';
+
+
 
 export default function PedidoScreen({ navigation }) {
   const {

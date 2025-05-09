@@ -1,5 +1,23 @@
 import { StyleSheet } from 'react-native';
 
+export const webToastStyle = {
+  position: 'fixed',
+  bottom: '70px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  backgroundColor: '#c0392b',
+  color: 'white',
+  padding: '12px',
+  paddingLeft: '20px',
+  paddingRight: '20px',
+  borderRadius: '8px',
+  fontSize: '14px',
+  zIndex: '9999',
+  boxShadow: '0px 2px 8px rgba(0,0,0,0.2)',
+  opacity: '0',
+  transition: 'opacity 0.3s ease',
+};
+
 export default StyleSheet.create({
   container: {
     flex: 1,
@@ -61,5 +79,4 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  
 });
