@@ -1,53 +1,79 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const isMobile = Dimensions.get('window').width < 600;
+
+export const webToastStyle = {
+  position: 'fixed',
+  bottom: '60px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  backgroundColor: '#27ae60',
+  color: 'white',
+  padding: '12px',
+  paddingLeft: '20px',
+  paddingRight: '20px',
+  borderRadius: '8px',
+  fontSize: '14px',
+  zIndex: '9999',
+  boxShadow: '0px 2px 8px rgba(0,0,0,0.2)',
+  opacity: '0',
+  transition: 'opacity 0.3s ease',
+};
 
 export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff5f5',
-    padding: 20,
+    padding: 16,
   },
   titulo: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#8B0000',
+    color: '#a60000',
+    marginBottom: 16,
   },
   item: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: isMobile ? 'column' : 'row',
+    alignItems: isMobile ? 'flex-start' : 'center',
     backgroundColor: '#ffe6e6',
     padding: 12,
-    marginBottom: 10,
+    marginBottom: 12,
     borderRadius: 10,
+    gap: 10,
   },
   nombre: {
-    fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    fontSize: 16,
+    marginBottom: 4,
   },
   stock: {
+    color: '#555',
     fontSize: 14,
-    color: '#666',
+    marginBottom: isMobile ? 10 : 0,
   },
   input: {
+    backgroundColor: 'white',
     borderWidth: 1,
     borderColor: '#ccc',
-    backgroundColor: '#fff',
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 8,
-    minWidth: 70,
-    marginHorizontal: 10,
-    textAlign: 'center',
+    borderRadius: 6,
+    minWidth: 120,
   },
   boton: {
-    backgroundColor: '#B22222',
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: '#c0392b',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  botonSolicitar: {
+    backgroundColor: '#27ae60',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 6,
   },
   botonTexto: {
-    color: '#fff',
+    color: 'white',
     fontWeight: 'bold',
-    fontSize: 18,
   },
 });

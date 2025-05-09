@@ -82,4 +82,6 @@ export async function reponerFaltantes(productoId) {
       cantidad_input: i.cantidad
     });
   }
+
 }
+

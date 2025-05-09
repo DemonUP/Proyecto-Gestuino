@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, TextInput, TouchableOpacity, Alert, Platform, ToastAndroid } from 'react-native';
 import supabase from '../../../supabase';
-import styles from '../styles/InventarioStyle';
+import styles, { webToastStyle } from '../styles/InventarioStyle'; // asegúrate de tener esto en tu archivo de estilos
 
 export default function InventarioScreen() {
   const [ingredientes, setIngredientes] = useState([]);
@@ -10,6 +10,28 @@ export default function InventarioScreen() {
   useEffect(() => {
     obtenerIngredientes();
   }, []);
+
+  const toast = (mensaje) => {
+    if (Platform.OS === 'android') {
+      ToastAndroid.show(mensaje, ToastAndroid.SHORT);
+    } else {
+      const toast = document.createElement('div');
+      toast.textContent = mensaje;
+  
+      Object.entries(webToastStyle).forEach(([key, value]) => {
+        toast.style[key] = value;
+      });
+  
+      document.body.appendChild(toast);
+      setTimeout(() => (toast.style.opacity = '1'), 10);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => document.body.removeChild(toast), 300);
+      }, 3000);
+    }
+  };
+  
+  
 
   const obtenerIngredientes = async () => {
     const { data, error } = await supabase
@@ -24,6 +46,33 @@ export default function InventarioScreen() {
 
     setIngredientes(data);
   };
+
+  const solicitarABodega = async (id) => {
+    const cantidad = parseInt(cantidades[id]);
+  
+    if (isNaN(cantidad) || cantidad <= 0) {
+      Alert.alert('Error', 'Ingresa una cantidad válida');
+      return;
+    }
+  
+    const ingrediente = ingredientes.find(i => i.id === id);
+    const nuevoStock = ingrediente.stock + cantidad;
+  
+    const { error } = await supabase
+      .from('ingredientes')
+      .update({ stock: nuevoStock })
+      .eq('id', id);
+  
+    if (error) {
+      console.error('Error solicitando a bodega:', error);
+      toast('Error al solicitar a bodega');
+    } else {
+      toast('Solicitado a bodega');
+      setCantidades({ ...cantidades, [id]: '' });
+      obtenerIngredientes(); // recarga lista
+    }
+  };
+
 
   const aumentarStock = async (id, cantidad) => {
     const incremento = parseInt(cantidad);
@@ -66,10 +115,14 @@ export default function InventarioScreen() {
         style={styles.input}
       />
       <TouchableOpacity
-        style={styles.boton}
-        onPress={() => aumentarStock(item.id, cantidades[item.id])}
+        style={styles.botonSolicitar}
+        onPress={async () => {
+          await solicitarABodega(item.id);
+          toast('Solicitado a bodega');
+          obtenerIngredientes(); // recarga datos sin recargar pantalla
+        }}
       >
-        <Text style={styles.botonTexto}>+</Text>
+        <Text style={styles.botonTexto}>Solicitar a bodega</Text>
       </TouchableOpacity>
     </View>
   );
