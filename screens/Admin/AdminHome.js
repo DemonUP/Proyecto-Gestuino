@@ -20,6 +20,9 @@ export default function AdminHome({ usuario, navigation, onLogout }) {
           <Button title="Gestión de Menú" color="#CD5C5C" onPress={() => navigation.navigate('Menu')} />
         </View>
         <View style={styles.button}>
+          <Button title="Configuraciones" color="#DA7B93" onPress={() => navigation.navigate('Configuraciones')} />
+        </View>
+        <View style={styles.button}>
           <Button title="Cerrar Sesión" color="#c0392b" onPress={onLogout} />
         </View>
       </View>
@@ -30,7 +33,7 @@ export default function AdminHome({ usuario, navigation, onLogout }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fddede', // mismo fondo rosado claro
+    backgroundColor: '#fddede',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,

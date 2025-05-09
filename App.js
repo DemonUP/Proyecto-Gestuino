@@ -7,6 +7,8 @@ import ReportesScreen from './screens/Admin/screens/ReportesScreen';
 import InventarioScreen from './screens/Admin/screens/InventarioScreen';
 import GraficosReportes from './screens/Admin/screens/GraficosReportes';
 import MenuScreen from './screens/Admin/screens/MenuScreen';
+import ConfiguracionesScreen from './screens/Admin/screens/ConfiguracionesScreen'; 
+
 
 import MeseroHome from './screens/Mesero/MeseroHome';
 import MesaScreen from './screens/Mesero/screens/MesaScreen';
@@ -58,6 +60,7 @@ export default function App() {
         <Stack.Screen name="GraficosReportes" component={GraficosReportes} />
         <Stack.Screen name="Inventario" component={InventarioScreen} />
         <Stack.Screen name="Menu" component={MenuScreen} />
+        <Stack.Screen name="Configuraciones" component={ConfiguracionesScreen} />
       </Stack.Navigator>      
       ) : (
         <Stack.Navigator

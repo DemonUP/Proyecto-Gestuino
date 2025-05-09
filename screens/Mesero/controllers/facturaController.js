@@ -4,7 +4,10 @@ import supabase from '../../../supabase';
 
 export function useFacturaController(mesa, navigation) {
   const [pedidos, setPedidos] = useState([]);
+  const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
+  const [iva, setIva] = useState(0);
+  const [propina, setPropina] = useState(0);
 
   useEffect(() => {
     obtenerPedidos();
@@ -19,17 +22,49 @@ export function useFacturaController(mesa, navigation) {
 
     if (error) {
       console.error('Error al obtener pedidos:', error);
-    } else {
-      setPedidos(data);
-      const totalCalculado = data.reduce(
-        (acc, p) => acc + p.cantidad * p.productos.precio,
-        0
-      );
-      setTotal(totalCalculado);
+      return;
     }
+
+    setPedidos(data);
+
+    const sub = data.reduce(
+      (acc, p) => acc + p.cantidad * p.productos.precio,
+      0
+    );
+
+    setSubtotal(sub);
+
+    // Cargar IVA y propina desde configuraciones
+    const { data: configData, error: configError } = await supabase
+      .from('configuraciones')
+      .select('*');
+
+    if (configError) {
+      console.error('Error cargando configuración:', configError);
+      setTotal(sub); // fallback solo subtotal
+      return;
+    }
+
+    let ivaPorcentaje = 0;
+    let propinaPorcentaje = 0;
+
+    configData.forEach((cfg) => {
+      if (cfg.nombre === 'iva') ivaPorcentaje = parseFloat(cfg.valor);
+      if (cfg.nombre === 'propina') propinaPorcentaje = parseFloat(cfg.valor);
+    });
+
+    setIva(ivaPorcentaje);
+    setPropina(propinaPorcentaje);
+
+    const calculado =
+      sub +
+      (sub * ivaPorcentaje) / 100 +
+      (sub * propinaPorcentaje) / 100;
+
+    setTotal(Math.round(calculado));
   };
 
-  const cerrarCuenta = async () => {
+  const cerrarCuenta = async (incluirPropina = false) => {
     const { error: pedidoError } = await supabase
       .from('pedidos')
       .update({ estado: 'facturado' })
@@ -52,15 +87,23 @@ export function useFacturaController(mesa, navigation) {
   const imprimirFactura = () => {
     console.log(`--- FACTURA MESA ${mesa.numero} ---`);
     pedidos.forEach((p) => {
-      console.log(`${p.cantidad} x ${p.productos.nombre} = $${p.cantidad * p.productos.precio}`);
+      console.log(
+        `${p.cantidad} x ${p.productos.nombre} = $${p.cantidad * p.productos.precio}`
+      );
     });
+    console.log(`Subtotal: $${subtotal}`);
+    console.log(`IVA (${iva}%) = $${(subtotal * iva / 100).toFixed(2)}`);
+    console.log(`Propina (${propina}%) = $${(subtotal * propina / 100).toFixed(2)}`);
     console.log(`TOTAL: $${total}`);
   };
 
   return {
     pedidos,
+    subtotal,
+    iva,
+    propina,
     total,
     cerrarCuenta,
-    imprimirFactura
+    imprimirFactura,
   };
 }

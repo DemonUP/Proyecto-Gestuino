@@ -3,57 +3,77 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20
+    padding: 20,
+    backgroundColor: '#fffefc',
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20
+    marginBottom: 25,
+    textAlign: 'center',
+    color: '#b71c1c',
   },
   item: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 8
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    backgroundColor: '#fff0f0',
+    marginVertical: 4,
+    borderRadius: 8,
+    shadowColor: '#ccc',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+    elevation: 2,
   },
   total: {
-    marginTop: 30,
+    marginTop: 12,
     fontSize: 18,
-    fontWeight: 'bold'
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'right',
   },
   button: {
-    backgroundColor: '#c62828', // rojo fuerte
-    paddingVertical: 12,
+    backgroundColor: '#b71c1c',
+    paddingVertical: 14,
     paddingHorizontal: 25,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: 'center',
-    marginTop: 10
+    marginTop: 14,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 2,
+    elevation: 3,
   },
   buttonText: {
-    color: 'white',
+    color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
   buttonDisabled: {
-    backgroundColor: '#ef9a9a' // rojo claro para desactivado
+    backgroundColor: '#e0e0e0',
   },
   toast: {
     position: 'absolute',
-    bottom: 180,
+    bottom: 100,
     alignSelf: 'center',
     backgroundColor: '#4caf50',
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 25,
     zIndex: 999,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5
+    elevation: 5,
   },
   toastText: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 16
-  }
+    fontSize: 16,
+  },
 });
