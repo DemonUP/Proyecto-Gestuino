@@ -71,11 +71,15 @@ export function usePedidoController(navigation) {
   };
 
   const obtenerProductos = async () => {
-    const { data, error } = await supabase.from('productos').select('*');
+    const { data, error } = await supabase
+      .from('productos')
+      .select('*')
+      .eq('activo', true); // ✅ Solo productos activos
+  
     if (!error) setProductos(data);
     else console.error('Error productos:', error);
   };
-
+  
   const obtenerPedidosMesa = async (idMesa) => {
     const { data, error } = await supabase
       .from('pedidos')
