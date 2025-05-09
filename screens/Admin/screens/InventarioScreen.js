@@ -104,28 +104,31 @@ export default function InventarioScreen() {
         <Text style={styles.nombre}>{item.nombre}</Text>
         <Text style={styles.stock}>Stock: {item.stock}</Text>
       </View>
-
-      <TextInput
-        placeholder="+ cantidad"
-        keyboardType="numeric"
-        value={cantidades[item.id] || ''}
-        onChangeText={(text) =>
-          setCantidades({ ...cantidades, [item.id]: text })
-        }
-        style={styles.input}
-      />
-      <TouchableOpacity
-        style={styles.botonSolicitar}
-        onPress={async () => {
-          await solicitarABodega(item.id);
-          toast('Solicitado a bodega');
-          obtenerIngredientes(); // recarga datos sin recargar pantalla
-        }}
-      >
-        <Text style={styles.botonTexto}>Solicitar a bodega</Text>
-      </TouchableOpacity>
+  
+      <View style={styles.filaControles}>
+        <TextInput
+          placeholder="+ cantidad"
+          keyboardType="numeric"
+          value={cantidades[item.id] || ''}
+          onChangeText={(text) =>
+            setCantidades({ ...cantidades, [item.id]: text })
+          }
+          style={styles.input}
+        />
+        <TouchableOpacity
+          style={styles.botonSolicitar}
+          onPress={async () => {
+            await solicitarABodega(item.id);
+            toast('Solicitado a bodega');
+            obtenerIngredientes(); // recarga lista sin recargar toda la pantalla
+          }}
+        >
+          <Text style={styles.botonTexto}>Solicitar a bodega</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
+  
 
   return (
     <View style={styles.container}>

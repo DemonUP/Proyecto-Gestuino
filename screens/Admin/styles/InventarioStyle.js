@@ -33,13 +33,17 @@ export default StyleSheet.create({
     marginBottom: 16,
   },
   item: {
-    flexDirection: isMobile ? 'column' : 'row',
-    alignItems: isMobile ? 'flex-start' : 'center',
     backgroundColor: '#ffe6e6',
     padding: 12,
     marginBottom: 12,
     borderRadius: 10,
     gap: 10,
+  },
+  filaControles: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 8,
   },
   nombre: {
     fontWeight: 'bold',
