@@ -1,10 +1,11 @@
-// controllers/useReportesController.js
 import { useEffect, useState } from 'react';
 import supabase from '../../../supabase';
 
 export default function useReportesController() {
   const [ventasPorMesa, setVentasPorMesa] = useState({});
   const [totalGeneral, setTotalGeneral] = useState(0);
+  const [ivaTotal, setIvaTotal] = useState(0);
+  const [propinaTotal, setPropinaTotal] = useState(0);
   const [mesasAbiertas, setMesasAbiertas] = useState({});
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
   const [fechaInicio, setFechaInicio] = useState(null);
@@ -15,6 +16,20 @@ export default function useReportesController() {
   }, [fechaInicio, fechaFin]);
 
   const cargarVentasAgrupadas = async () => {
+    // 1. Cargar IVA y propina
+    const { data: config, error: configError } = await supabase
+      .from('configuraciones')
+      .select('*');
+
+    if (configError) {
+      console.error('Error cargando configuraciones:', configError);
+      return;
+    }
+
+    const iva = parseFloat(config.find(c => c.nombre === 'iva')?.valor || 0);
+    const propina = parseFloat(config.find(c => c.nombre === 'propina')?.valor || 0);
+
+    // 2. Consulta de ventas
     let query = supabase
       .from('pedidos')
       .select(`
@@ -25,7 +40,8 @@ export default function useReportesController() {
         mesas(id, numero),
         productos(id, nombre, precio),
         usuarios(id, nombre, apellido)
-      `);
+      `)
+      .eq('estado', 'facturado'); // Solo ventas cerradas
 
     if (fechaInicio) {
       query = query.gte('creado_en', fechaInicio.toISOString());
@@ -44,7 +60,7 @@ export default function useReportesController() {
     }
 
     const agrupadas = {};
-    let total = 0;
+    let subtotal = 0;
 
     data.forEach((venta) => {
       const mesaId = venta.mesas?.id;
@@ -55,7 +71,7 @@ export default function useReportesController() {
       const fecha = new Date(venta.creado_en).toLocaleDateString();
       const key = `${venta.productos.nombre}-${venta.productos.precio}-${mesero}-${fecha}`;
       const totalVenta = venta.cantidad * venta.productos.precio;
-      total += totalVenta;
+      subtotal += totalVenta;
 
       if (!agrupadas[mesaId]) {
         agrupadas[mesaId] = {
@@ -79,8 +95,15 @@ export default function useReportesController() {
       agrupadas[mesaId].totalMesa += totalVenta;
     });
 
+    // 3. Cálculos de impuestos
+    const ivaMonto = subtotal * (iva / 100);
+    const propinaMonto = subtotal * (propina / 100);
+    const totalFinal = subtotal + ivaMonto + propinaMonto;
+
     setVentasPorMesa(agrupadas);
-    setTotalGeneral(total);
+    setTotalGeneral(totalFinal);
+    setIvaTotal(ivaMonto);
+    setPropinaTotal(propinaMonto);
   };
 
   const toggleMesa = (id) => {
@@ -99,6 +122,8 @@ export default function useReportesController() {
   return {
     ventasPorMesa,
     totalGeneral,
+    ivaTotal,
+    propinaTotal,
     mesasAbiertas,
     toggleMesa,
     mostrarFiltros,

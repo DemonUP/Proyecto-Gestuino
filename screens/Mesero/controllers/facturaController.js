@@ -1,3 +1,4 @@
+// controllers/facturaController.js
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import supabase from '../../../supabase';
@@ -5,9 +6,12 @@ import supabase from '../../../supabase';
 export function useFacturaController(mesa, navigation) {
   const [pedidos, setPedidos] = useState([]);
   const [subtotal, setSubtotal] = useState(0);
-  const [total, setTotal] = useState(0);
   const [iva, setIva] = useState(0);
   const [propina, setPropina] = useState(0);
+  const [ivaTotal, setIvaTotal] = useState(0);
+  const [propinaTotal, setPropinaTotal] = useState(0);
+  const [totalConPropina, setTotalConPropina] = useState(0);
+  const [totalSinPropina, setTotalSinPropina] = useState(0);
 
   useEffect(() => {
     obtenerPedidos();
@@ -31,17 +35,16 @@ export function useFacturaController(mesa, navigation) {
       (acc, p) => acc + p.cantidad * p.productos.precio,
       0
     );
-
     setSubtotal(sub);
 
-    // Cargar IVA y propina desde configuraciones
     const { data: configData, error: configError } = await supabase
       .from('configuraciones')
       .select('*');
 
     if (configError) {
       console.error('Error cargando configuración:', configError);
-      setTotal(sub); // fallback solo subtotal
+      setTotalSinPropina(sub);
+      setTotalConPropina(sub);
       return;
     }
 
@@ -56,15 +59,16 @@ export function useFacturaController(mesa, navigation) {
     setIva(ivaPorcentaje);
     setPropina(propinaPorcentaje);
 
-    const calculado =
-      sub +
-      (sub * ivaPorcentaje) / 100 +
-      (sub * propinaPorcentaje) / 100;
+    const ivaCalc = sub * (ivaPorcentaje / 100);
+    const propinaCalc = sub * (propinaPorcentaje / 100);
 
-    setTotal(Math.round(calculado));
+    setIvaTotal(Math.round(ivaCalc));
+    setPropinaTotal(Math.round(propinaCalc));
+    setTotalSinPropina(Math.round(sub + ivaCalc));
+    setTotalConPropina(Math.round(sub + ivaCalc + propinaCalc));
   };
 
-  const cerrarCuenta = async (incluirPropina = false) => {
+  const cerrarCuenta = async () => {
     const { error: pedidoError } = await supabase
       .from('pedidos')
       .update({ estado: 'facturado' })
@@ -92,9 +96,10 @@ export function useFacturaController(mesa, navigation) {
       );
     });
     console.log(`Subtotal: $${subtotal}`);
-    console.log(`IVA (${iva}%) = $${(subtotal * iva / 100).toFixed(2)}`);
-    console.log(`Propina (${propina}%) = $${(subtotal * propina / 100).toFixed(2)}`);
-    console.log(`TOTAL: $${total}`);
+    console.log(`IVA (${iva}%) = $${ivaTotal}`);
+    console.log(`Propina (${propina}%) = $${propinaTotal}`);
+    console.log(`TOTAL SIN PROPINA: $${totalSinPropina}`);
+    console.log(`TOTAL CON PROPINA: $${totalConPropina}`);
   };
 
   return {
@@ -102,7 +107,10 @@ export function useFacturaController(mesa, navigation) {
     subtotal,
     iva,
     propina,
-    total,
+    ivaTotal,
+    propinaTotal,
+    totalConPropina,
+    totalSinPropina,
     cerrarCuenta,
     imprimirFactura,
   };

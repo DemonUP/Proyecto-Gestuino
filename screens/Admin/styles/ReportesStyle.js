@@ -25,6 +25,12 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 4,
   },
+  subInfo: {
+    fontSize: isMobile ? 13 : 15,
+    color: '#333',
+    marginTop: 2,
+    fontStyle: 'italic',
+  },
   botonesTop: {
     flexDirection: 'row',
     gap: 10,

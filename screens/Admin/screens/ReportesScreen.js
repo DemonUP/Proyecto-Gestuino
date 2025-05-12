@@ -1,4 +1,3 @@
-// screens/Admin/ReportesScreen.js
 import React from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +13,8 @@ export default function ReportesScreen() {
   const {
     ventasPorMesa,
     totalGeneral,
+    ivaTotal,
+    propinaTotal,
     mesasAbiertas,
     toggleMesa,
     mostrarFiltros,
@@ -30,7 +31,9 @@ export default function ReportesScreen() {
       <View style={styles.headerRow}>
         <View>
           <Text style={styles.titulo}>Reporte de Ventas</Text>
-          <Text style={styles.totalGeneral}>TOTAL VENTAS: ${totalGeneral}</Text>
+          <Text style={styles.totalGeneral}>TOTAL: ${totalGeneral.toFixed(2)}</Text>
+          <Text style={styles.subInfo}>IVA cobrado: ${ivaTotal.toFixed(2)}</Text>
+          <Text style={styles.subInfo}>Propina cobrada: ${propinaTotal.toFixed(2)}</Text>
         </View>
 
         <View style={styles.botonesTop}>
@@ -91,7 +94,7 @@ export default function ReportesScreen() {
           <TouchableOpacity onPress={() => toggleMesa(mesaId)} style={styles.mesaHeader}>
             <Ionicons name="restaurant-outline" size={18} color="brown" />
             <Text style={styles.mesaTitulo}>{grupo.nombreMesa}</Text>
-            <Text style={styles.totalMesa}>Total: ${grupo.totalMesa}</Text>
+            <Text style={styles.totalMesa}>Total: ${grupo.totalMesa.toFixed(2)}</Text>
           </TouchableOpacity>
 
           {mesasAbiertas[mesaId] &&
@@ -102,7 +105,7 @@ export default function ReportesScreen() {
                 </Text>
                 <Text>Mesero: {venta.mesero}</Text>
                 <Text>Fecha: {venta.fecha}</Text>
-                <Text style={styles.total}>Total: ${venta.cantidad * venta.precio}</Text>
+                <Text style={styles.total}>Total: ${(venta.cantidad * venta.precio).toFixed(2)}</Text>
               </View>
             ))}
         </View>

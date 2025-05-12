@@ -1,45 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+// screens/Mesero/screens/FacturaScreen.js
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity
+} from 'react-native';
 import { useFacturaController } from '../controllers/facturaController';
-import { obtenerConfiguraciones } from '../../Admin/controllers/ConfiguracionesController';
 import styles from '../styles/facturaStyles';
 
 export default function FacturaScreen({ route, navigation }) {
   const { mesa } = route.params;
   const {
-    pedidos, total, imprimirFactura, cerrarCuenta
+    pedidos,
+    subtotal,
+    iva,
+    propina,
+    ivaTotal,
+    propinaTotal,
+    totalConPropina,
+    totalSinPropina,
+    cerrarCuenta,
+    imprimirFactura
   } = useFacturaController(mesa, navigation);
 
   const [mostrarToast, setMostrarToast] = useState(false);
-  const [config, setConfig] = useState({ iva: 0, propina: 0 });
-
-  useEffect(() => {
-    const cargarConfig = async () => {
-      const data = await obtenerConfiguraciones();
-      setConfig(data);
-    };
-    cargarConfig();
-  }, []);
 
   const handleImprimir = () => {
     imprimirFactura();
     setMostrarToast(true);
     setTimeout(() => setMostrarToast(false), 3000);
-  };
-
-  const handleCerrarConPropina = async () => {
-    const totalIVA = total * (config.iva / 100);
-    const totalPropina = total * (config.propina / 100);
-    const totalFinal = total + totalIVA + totalPropina;
-
-    await cerrarCuenta(totalFinal);
-  };
-
-  const handleCerrarSinPropina = async () => {
-    const totalIVA = total * (config.iva / 100);
-    const totalFinal = total + totalIVA;
-
-    await cerrarCuenta(totalFinal);
   };
 
   const renderItem = ({ item }) => (
@@ -48,11 +38,6 @@ export default function FacturaScreen({ route, navigation }) {
       <Text>${item.cantidad * item.productos.precio}</Text>
     </View>
   );
-
-  const totalIVA = total * (config.iva / 100);
-  const totalPropina = total * (config.propina / 100);
-  const totalConPropina = total + totalIVA + totalPropina;
-  const totalSinPropina = total + totalIVA;
 
   return (
     <View style={styles.container}>
@@ -64,35 +49,36 @@ export default function FacturaScreen({ route, navigation }) {
         renderItem={renderItem}
       />
 
-      <Text style={styles.total}>Subtotal: ${total}</Text>
-      <Text style={styles.total}>IVA ({config.iva}%): ${totalIVA.toFixed(0)}</Text>
-      <Text style={styles.total}>Propina ({config.propina}%): ${totalPropina.toFixed(0)}</Text>
-
-      <Text style={styles.total}>Total con propina: ${totalConPropina.toFixed(0)}</Text>
-      <Text style={styles.total}>Total sin propina: ${totalSinPropina.toFixed(0)}</Text>
+      <View style={{ marginTop: 20 }}>
+        <Text style={styles.total}>Subtotal: ${subtotal}</Text>
+        <Text style={styles.total}>IVA ({iva}%): ${ivaTotal}</Text>
+        <Text style={styles.total}>Propina ({propina}%): ${propinaTotal}</Text>
+        <Text style={styles.total}>Total con propina: ${totalConPropina}</Text>
+        <Text style={styles.total}>Total sin propina: ${totalSinPropina}</Text>
+      </View>
 
       <TouchableOpacity
         style={[styles.button, pedidos.length === 0 && styles.buttonDisabled]}
         onPress={handleImprimir}
         disabled={pedidos.length === 0}
       >
-        <Text style={styles.buttonText}>Imprimir</Text>
+        <Text style={styles.buttonText}>IMPRIMIR</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.button, pedidos.length === 0 && styles.buttonDisabled]}
-        onPress={handleCerrarConPropina}
+        onPress={cerrarCuenta}
         disabled={pedidos.length === 0}
       >
-        <Text style={styles.buttonText}>Cerrar Cuenta con Propina</Text>
+        <Text style={styles.buttonText}>CERRAR CUENTA SIN PROPINA</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.button, pedidos.length === 0 && styles.buttonDisabled]}
-        onPress={handleCerrarSinPropina}
+        onPress={() => cerrarCuenta(true)}
         disabled={pedidos.length === 0}
       >
-        <Text style={styles.buttonText}>Cerrar Cuenta sin Propina</Text>
+        <Text style={styles.buttonText}>CERRAR CUENTA CON PROPINA</Text>
       </TouchableOpacity>
 
       {mostrarToast && (
