@@ -85,3 +85,19 @@ export async function reponerFaltantes(productoId) {
 
 }
 
+/**
+ * Crea un nuevo ingrediente en inventario.
+ * @param {string} nombre
+ * @param {number} stock
+ */
+export async function crearIngrediente({ nombre, stock }) {
+  const { data, error } = await supabase
+    .from('ingredientes')
+    .insert([{ nombre, stock: parseInt(stock, 10) }])
+    .select();
+  if (error) {
+    console.error('Error creando ingrediente:', error);
+    return null;
+  }
+  return data[0];
+}
