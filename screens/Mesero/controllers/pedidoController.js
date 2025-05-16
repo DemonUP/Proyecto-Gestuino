@@ -118,30 +118,37 @@ export function usePedidoController(navigation) {
   };
 
   const actualizarEstadoMesa = async () => {
-    if (!mesaSeleccionada) return;
+  console.log("🛠️ Ejecutando actualización de estado...");
+  console.log("ℹ️ ID de mesa seleccionada:", mesaSeleccionada);
+  console.log("ℹ️ Nuevo estado:", estadoMesa);
 
-    if (!cantidadPersonas || isNaN(parseInt(cantidadPersonas))) {
-      Alert.alert('Error', 'Debes ingresar la cantidad de personas.');
-      return;
-    }
+  if (!mesaSeleccionada) {
+    mostrarToast('Debes seleccionar una mesa.');
+    return;
+  }
 
-    const { error } = await supabase
-      .from('mesas')
-      .update({
-        estado: estadoMesa,
-        cantidad_personas: parseInt(cantidadPersonas),
-        descripcion: descripcionMesa || null,
-      })
-      .eq('id', mesaSeleccionada);
+  const { data, error } = await supabase
+    .from('mesas')
+    .update({ estado: estadoMesa }) // ✅ solo se actualiza el estado
+    .eq('id', mesaSeleccionada)
+    .select();
 
-    if (error) {
-      console.error('Error cambiando estado:', error);
-      Alert.alert('Error', 'No se pudo actualizar la mesa.');
-    } else {
-      Alert.alert('Mesa actualizada', `Estado: ${estadoMesa}`);
-      obtenerMesas();
-    }
-  };
+  if (error) {
+    console.error('❌ Error actualizando estado:', error);
+    Alert.alert('Error', 'No se pudo actualizar el estado de la mesa.');
+  } else if (!data || data.length === 0) {
+    console.warn('⚠️ No se actualizó ninguna fila. ¿ID correcto?');
+    Alert.alert('Atención', 'No se actualizó la mesa. Revisa el ID.');
+  } else {
+    console.log("✅ Estado actualizado correctamente:", data);
+    mostrarToast(`✅ Estado de la mesa actualizado a "${estadoMesa}"`);
+    obtenerMesas();
+  }
+};
+
+
+
+
 
   const enviarPedido = async () => {
   if (!mesaSeleccionada || pedido.length === 0) {
