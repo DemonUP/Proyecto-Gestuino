@@ -13,8 +13,12 @@ export function useFacturaController(mesa, navigation) {
   const [totalConPropina, setTotalConPropina] = useState(0);
   const [totalSinPropina, setTotalSinPropina] = useState(0);
 
+  const [cantidadPersonas, setCantidadPersonas] = useState('');
+  const [descripcionMesa, setDescripcionMesa] = useState('');
+
   useEffect(() => {
     obtenerPedidos();
+    obtenerMesaInfo();
   }, []);
 
   const obtenerPedidos = async () => {
@@ -68,6 +72,21 @@ export function useFacturaController(mesa, navigation) {
     setTotalConPropina(Math.round(sub + ivaCalc + propinaCalc));
   };
 
+  const obtenerMesaInfo = async () => {
+    const { data, error } = await supabase
+      .from('mesas')
+      .select('cantidad_personas, descripcion')
+      .eq('id', mesa.id)
+      .single();
+
+    if (!error && data) {
+      setCantidadPersonas(data.cantidad_personas);
+      setDescripcionMesa(data.descripcion || '');
+    } else {
+      console.error('Error al obtener info de mesa:', error);
+    }
+  };
+
   const cerrarCuenta = async () => {
     const { error: pedidoError } = await supabase
       .from('pedidos')
@@ -90,6 +109,10 @@ export function useFacturaController(mesa, navigation) {
 
   const imprimirFactura = () => {
     console.log(`--- FACTURA MESA ${mesa.numero} ---`);
+    console.log(`Cantidad de personas: ${cantidadPersonas}`);
+    if (descripcionMesa) {
+      console.log(`Descripción: ${descripcionMesa}`);
+    }
     pedidos.forEach((p) => {
       console.log(
         `${p.cantidad} x ${p.productos.nombre} = $${p.cantidad * p.productos.precio}`
@@ -113,5 +136,7 @@ export function useFacturaController(mesa, navigation) {
     totalSinPropina,
     cerrarCuenta,
     imprimirFactura,
+    cantidadPersonas,
+    descripcionMesa,
   };
 }

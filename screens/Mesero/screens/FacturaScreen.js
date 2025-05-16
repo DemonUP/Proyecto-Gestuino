@@ -21,7 +21,9 @@ export default function FacturaScreen({ route, navigation }) {
     totalConPropina,
     totalSinPropina,
     cerrarCuenta,
-    imprimirFactura
+    imprimirFactura,
+    cantidadPersonas,
+    descripcionMesa
   } = useFacturaController(mesa, navigation);
 
   const [mostrarToast, setMostrarToast] = useState(false);
@@ -42,6 +44,11 @@ export default function FacturaScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Factura - Mesa {mesa.numero}</Text>
+
+      <Text style={styles.subinfo}>Cantidad de personas: {cantidadPersonas}</Text>
+      {descripcionMesa ? (
+        <Text style={styles.subinfo}>Descripción: {descripcionMesa}</Text>
+      ) : null}
 
       <FlatList
         data={pedidos}

@@ -3,10 +3,8 @@ import {
   View, Text, FlatList, TouchableOpacity, TextInput,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import styles from '../styles/pedidoStyles'; // 👈 asegúrate que esto esté al inicio del archivo
+import styles from '../styles/pedidoStyles';
 import { usePedidoController } from '../controllers/pedidoController';
-
-
 
 export default function PedidoScreen({ navigation }) {
   const {
@@ -14,7 +12,9 @@ export default function PedidoScreen({ navigation }) {
     estadoMesa, setEstadoMesa, productos,
     pedido, pedidosExistentes,
     agregarProducto, eliminarProductoPorCantidad, eliminarPedidoExistente,
-    actualizarEstadoMesa, enviarPedido
+    actualizarEstadoMesa, enviarPedido,
+    cantidadPersonas, setCantidadPersonas,
+    descripcionMesa, setDescripcionMesa,
   } = usePedidoController(navigation);
 
   const [cantidadesEliminar, setCantidadesEliminar] = useState({});
@@ -49,6 +49,23 @@ export default function PedidoScreen({ navigation }) {
 
       {mesaSeleccionada && (
         <>
+          <Text style={styles.label}>Cantidad de personas:</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            placeholder="Ej: 4"
+            value={cantidadPersonas}
+            onChangeText={setCantidadPersonas}
+          />
+
+          <Text style={styles.label}>Descripción (opcional):</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Ej: Cumpleaños, reunión, etc."
+            value={descripcionMesa}
+            onChangeText={setDescripcionMesa}
+          />
+
           <Text style={styles.label}>Estado:</Text>
           <Picker
             selectedValue={estadoMesa}

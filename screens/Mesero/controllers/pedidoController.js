@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
-import { ToastAndroid, Platform } from 'react-native';
-import supabase from '../../../supabase';
-import { obtenerUsuarioDeSesion } from '../../../supabase';
+import { Alert, ToastAndroid, Platform } from 'react-native';
+import supabase, { obtenerUsuarioDeSesion } from '../../../supabase';
 import { verificarDisponibilidad, descontarIngredientes } from '../../Admin/controllers/InventarioController';
-import styles, { webToastStyle } from '../styles/pedidoStyles'; // 👈 asegúrate que esto esté al inicio del archivo
+import styles, { webToastStyle } from '../styles/pedidoStyles';
 
 export function usePedidoController(navigation) {
   const [mesas, setMesas] = useState([]);
@@ -12,33 +10,30 @@ export function usePedidoController(navigation) {
   const [estadoMesa, setEstadoMesa] = useState('disponible');
   const [usuario, setUsuario] = useState(null);
 
-
   const [productos, setProductos] = useState([]);
   const [pedido, setPedido] = useState([]);
   const [pedidosExistentes, setPedidosExistentes] = useState([]);
 
+  const [cantidadPersonas, setCantidadPersonas] = useState('');
+  const [descripcionMesa, setDescripcionMesa] = useState('');
+
   const mostrarToast = (mensaje) => {
-      if (Platform.OS === 'android') {
-        ToastAndroid.show(mensaje, ToastAndroid.LONG);
-      } else {
-        const toast = document.createElement('div');
-        toast.textContent = mensaje;
-    
-        // aplicar estilos desde webToastStyle
-        Object.entries(webToastStyle).forEach(([key, value]) => {
-          toast.style[key] = value;
-        });
-    
-        document.body.appendChild(toast);
-        setTimeout(() => (toast.style.opacity = '1'), 10);
-        setTimeout(() => {
-          toast.style.opacity = '0';
-          setTimeout(() => document.body.removeChild(toast), 300);
-        }, 3000);
-      }
-    };
-  
-  
+    if (Platform.OS === 'android') {
+      ToastAndroid.show(mensaje, ToastAndroid.LONG);
+    } else {
+      const toast = document.createElement('div');
+      toast.textContent = mensaje;
+      Object.entries(webToastStyle).forEach(([key, value]) => {
+        toast.style[key] = value;
+      });
+      document.body.appendChild(toast);
+      setTimeout(() => (toast.style.opacity = '1'), 10);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => document.body.removeChild(toast), 300);
+      }, 3000);
+    }
+  };
 
   useEffect(() => {
     const cargarUsuario = async () => {
@@ -47,7 +42,6 @@ export function usePedidoController(navigation) {
     };
     cargarUsuario();
   }, []);
-
 
   useEffect(() => {
     obtenerMesas();
@@ -58,6 +52,8 @@ export function usePedidoController(navigation) {
     if (mesaSeleccionada) {
       const mesa = mesas.find((m) => m.id === mesaSeleccionada);
       setEstadoMesa(mesa?.estado || 'disponible');
+      setCantidadPersonas(mesa?.cantidad_personas?.toString() || '');
+      setDescripcionMesa(mesa?.descripcion || '');
       obtenerPedidosMesa(mesaSeleccionada);
     } else {
       setPedidosExistentes([]);
@@ -74,12 +70,11 @@ export function usePedidoController(navigation) {
     const { data, error } = await supabase
       .from('productos')
       .select('*')
-      .eq('activo', true); // ✅ Solo productos activos
-  
+      .eq('activo', true);
     if (!error) setProductos(data);
     else console.error('Error productos:', error);
   };
-  
+
   const obtenerPedidosMesa = async (idMesa) => {
     const { data, error } = await supabase
       .from('pedidos')
@@ -103,12 +98,10 @@ export function usePedidoController(navigation) {
     setPedido(nuevoPedido);
   };
 
-  // ✅ NUEVA FUNCIÓN: Elimina una cantidad específica de un producto
   const eliminarProductoPorCantidad = (productoId, cantidadEliminar) => {
     setPedido((prev) => {
       const nuevaLista = [];
       let eliminados = 0;
-
       for (let item of prev) {
         if (item.id === productoId && eliminados < cantidadEliminar) {
           eliminados++;
@@ -116,7 +109,6 @@ export function usePedidoController(navigation) {
         }
         nuevaLista.push(item);
       }
-
       return nuevaLista;
     });
   };
@@ -127,34 +119,47 @@ export function usePedidoController(navigation) {
 
   const actualizarEstadoMesa = async () => {
     if (!mesaSeleccionada) return;
+
+    if (!cantidadPersonas || isNaN(parseInt(cantidadPersonas))) {
+      Alert.alert('Error', 'Debes ingresar la cantidad de personas.');
+      return;
+    }
+
     const { error } = await supabase
       .from('mesas')
-      .update({ estado: estadoMesa })
+      .update({
+        estado: estadoMesa,
+        cantidad_personas: parseInt(cantidadPersonas),
+        descripcion: descripcionMesa || null,
+      })
       .eq('id', mesaSeleccionada);
 
     if (error) {
       console.error('Error cambiando estado:', error);
-      Alert.alert('Error', 'No se pudo actualizar el estado.');
+      Alert.alert('Error', 'No se pudo actualizar la mesa.');
     } else {
-      Alert.alert('Estado actualizado', `Mesa ahora está "${estadoMesa}".`);
+      Alert.alert('Mesa actualizada', `Estado: ${estadoMesa}`);
       obtenerMesas();
     }
   };
 
- const enviarPedido = async () => {
+  const enviarPedido = async () => {
   if (!mesaSeleccionada || pedido.length === 0) {
     mostrarToast('Selecciona una mesa y productos.');
     return;
   }
 
-  // Agrupar productos por ID para obtener la cantidad total de cada uno
+  if (!cantidadPersonas || isNaN(parseInt(cantidadPersonas))) {
+    mostrarToast('Debes ingresar una cantidad de personas válida.');
+    return;
+  }
+
   const grouped = {};
   pedido.forEach((p) => {
     grouped[p.id] = (grouped[p.id] || 0) + 1;
   });
 
   const productosConFaltantes = [];
-
   for (const [id, cantidad] of Object.entries(grouped)) {
     const resultado = await verificarDisponibilidad(parseInt(id), cantidad);
     if (!resultado.disponible) {
@@ -168,20 +173,25 @@ export function usePedidoController(navigation) {
 
   if (productosConFaltantes.length > 0) {
     mostrarToast(`Faltan ingredientes para: ${productosConFaltantes.join(', ')}`);
-    return; // no continuar si hay faltantes
+    return;
   }
 
-  // Descontar ingredientes para cada producto según cantidad
   for (const [id, cantidad] of Object.entries(grouped)) {
     await descontarIngredientes(parseInt(id), cantidad);
   }
 
-  // Si la mesa está disponible, actualizarla a "ocupada"
+  // Si la mesa está disponible, actualiza su estado + info extra
   if (estadoMesa === 'disponible') {
-    await supabase.from('mesas').update({ estado: 'ocupada' }).eq('id', mesaSeleccionada);
+    await supabase
+      .from('mesas')
+      .update({
+        estado: 'ocupada',
+        cantidad_personas: parseInt(cantidadPersonas),
+        descripcion: descripcionMesa || null
+      })
+      .eq('id', mesaSeleccionada);
   }
 
-  // Crear los inserts (una fila por unidad pedida)
   const inserts = [];
   for (const [id, cantidad] of Object.entries(grouped)) {
     for (let i = 0; i < cantidad; i++) {
@@ -208,11 +218,23 @@ export function usePedidoController(navigation) {
 };
 
   return {
-    mesas, mesaSeleccionada, setMesaSeleccionada,
-    estadoMesa, setEstadoMesa, productos,
-    pedido, pedidosExistentes,
-    agregarProducto, eliminarProductoSeleccionado,
-    eliminarProductoPorCantidad, eliminarPedidoExistente,
-    actualizarEstadoMesa, enviarPedido
+    mesas,
+    mesaSeleccionada,
+    setMesaSeleccionada,
+    estadoMesa,
+    setEstadoMesa,
+    productos,
+    pedido,
+    pedidosExistentes,
+    agregarProducto,
+    eliminarProductoSeleccionado,
+    eliminarProductoPorCantidad,
+    eliminarPedidoExistente,
+    actualizarEstadoMesa,
+    enviarPedido,
+    cantidadPersonas,
+    setCantidadPersonas,
+    descripcionMesa,
+    setDescripcionMesa,
   };
 }
