@@ -1,56 +1,224 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-  container: {
-    padding: 20,
+  wrapper: {
     flex: 1,
-    backgroundColor: '#fff',
+    flexDirection: 'row',
+    backgroundColor: '#F3F4F6',
   },
-  header: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
+  mainContent: {
+    flex: 1,
+    padding: 20,           // espacio alrededor igual al dashboard
   },
-  subHeader: {
-    fontSize: 18,
-    marginVertical: 15,
-    fontWeight: 'bold',
+  container: {
+    paddingBottom: 32,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    marginVertical: 5,
-    padding: 10,
-  },
-  button: {
-    backgroundColor: '#e67b7b',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 10,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  timeButton: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    borderRadius: 8,
-    marginVertical: 5,
-  },
-  timeText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  meseroItem: {
+
+  // Header
+  headerSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 5,
-    padding: 10,
-    backgroundColor: '#f1f1f1',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  headerTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerIconBg: {
+    backgroundColor: '#FF6B35',
+    padding: 8,
     borderRadius: 8,
+    marginRight: 8,
+  },
+  headerText: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  newButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF6B35',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  newButtonText: {
+    color: '#FFF',
+    marginLeft: 6,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  subHeader: {
+    fontSize: 14,
+    color: '#4B5563',
+    marginBottom: 16,
+  },
+
+  // Top Section
+  topSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  cardBase: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardWide: { width: '60%' },
+  cardNarrow: { width: '35%' },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  cardIconBg: {
+    backgroundColor: '#FFECDC',
+    padding: 8,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  cardIconBgLight: {
+    backgroundColor: '#FFECDC',
+    padding: 8,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+  },
+
+  // Form Grid
+  formGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  formItem: {
+    width: '48%',
+    marginBottom: 12,
+  },
+  inputLabel: {
+    fontSize: 14,
+    color: '#4B5563',
+    marginBottom: 4,
+  },
+  input: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 12,
+  },
+  timeButton: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 14,
+  },
+
+  // Stats
+  statsList: {
+    marginTop: 8,
+  },
+  statItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  statItemAccent: {
+    backgroundColor: '#FFF4EC',
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#374151',
+  },
+  statValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FF6B35',
+  },
+  statValueAccent: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFF',
+    backgroundColor: '#FF6B35',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+
+  // Lista de Meseros
+  listContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  listTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 12,
+  },
+  listItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: '#F9FAFB',
+    marginBottom: 8,
+  },
+  listItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  listItemRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarBg: {
+    backgroundColor: '#FFECDC',
+    padding: 8,
+    borderRadius: 12,
+    marginRight: 12,
+  },
+  listName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  listEmail: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 4,
+  },
+  listTime: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#FF6B35',
+    marginRight: 12,
   },
 });

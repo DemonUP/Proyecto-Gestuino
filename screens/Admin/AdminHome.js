@@ -145,11 +145,6 @@ function TrendCard() {
     <View style={styles.trendCard}>
       <View style={styles.trendHeader}>
         <Text style={styles.trendTitle}>Tendencia de Ventas</Text>
-        <View style={styles.trendButtons}>
-          <Text style={styles.trendOption}>7D</Text>
-          <Text style={styles.trendOption}>30D</Text>
-          <Text style={[styles.trendOption, styles.trendOptionActive]}>Personalizado</Text>
-        </View>
       </View>
       <View style={styles.trendPlaceholder}>
         <Text style={styles.trendPlaceholderText}>[Área para gráfico interactivo]</Text>

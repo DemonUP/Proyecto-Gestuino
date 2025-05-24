@@ -4,11 +4,12 @@ import { Feather } from '@expo/vector-icons';
 import styles from './Styles/AdminSidebarStyles';
 
 const items = [
-  { name: 'Dashboard', icon: 'home', route: 'AdminHome' },
-  { name: 'Reportes', icon: 'bar-chart', route: 'Reportes' },
-  { name: 'Inventario', icon: 'box', route: 'Inventario' },
-  { name: 'Menús', icon: 'book-open', route: 'Menu' },
-  { name: 'Configuración', icon: 'settings', route: 'Configuraciones' },
+  { name: 'Dashboard',       icon: 'home',       route: 'AdminHome' },
+  { name: 'Asignar Roles',   icon: 'users',      route: 'Roles' },
+  { name: 'Reportes de Ventas', icon: 'bar-chart', route: 'Reportes' },
+  { name: 'Inventario',      icon: 'box',        route: 'Inventario' },
+  { name: 'Gestión de Menú', icon: 'book-open',  route: 'Menu' },
+  { name: 'Configuraciones', icon: 'settings',   route: 'Configuraciones' },
 ];
 
 export default function AdminSidebar({ navigation, activeRoute }) {
