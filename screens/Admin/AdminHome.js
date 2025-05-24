@@ -49,10 +49,10 @@ export default function AdminHome({ usuario, navigation, onLogout }) {
           <View style={styles.header}>
             <View>
               <Text style={styles.title}>
-                Bienvenido, <Text style={styles.highlight}>Administrador/a {usuario.nombre} {usuario.apellido}</Text>
+                ¡Bienvenido, <Text style={styles.highlight}>Administrador/a {usuario.nombre} {usuario.apellido}!</Text>
               </Text>
               <Text style={styles.status}>
-                Estado del sistema: <Text style={styles.onlineDot}>●</Text> Operativo
+                Recuerda lo valioso que eres para nuestra empresa.
               </Text>
             </View>
             <View style={styles.headerActions}>
