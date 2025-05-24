@@ -1,11 +1,56 @@
-// screens/LoginScreen.js
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Alert,
+  Animated,
+  Platform
+} from 'react-native';
 import { loginUsuario } from '../supabase';
+import { Feather } from '@expo/vector-icons';
+import styles from './Admin/styles/LoginStyles';
 
 export default function LoginScreen({ onLogin }) {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
+  const [correoFocus, setCorreoFocus] = useState(false);
+  const [passFocus, setPassFocus] = useState(false);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const bounceAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounceAnim, {
+          toValue: -10,
+          duration: 1250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceAnim, {
+          toValue: 0,
+          duration: 1250,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.98,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 3,
+      useNativeDriver: true,
+    }).start();
+  };
 
   const handleLogin = async () => {
     const res = await loginUsuario(correo, contrasena);
@@ -17,60 +62,81 @@ export default function LoginScreen({ onLogin }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Gestuino 🍽️</Text>
+    <View style={styles.screen}>
+      <Animated.View
+        style={[
+          styles.card,
+          { transform: [{ scale: scaleAnim }] }
+        ]}
+      >
+        <Animated.View
+          style={[
+            styles.penguin,
+            { transform: [{ translateY: bounceAnim }] }
+          ]}
+        >
+          <View style={styles.penguinBelly} />
+          <View style={styles.penguinBeak} />
+        </Animated.View>
 
-      <TextInput
-        placeholder="Correo"
-        placeholderTextColor="#555"
-        style={styles.input}
-        value={correo}
-        onChangeText={setCorreo}
-      />
-      <TextInput
-        placeholder="Contraseña"
-        placeholderTextColor="#555"
-        secureTextEntry
-        style={styles.input}
-        value={contrasena}
-        onChangeText={setContrasena}
-      />
+        <Text style={styles.title}>
+          <Text style={styles.titleG}>G</Text>ESTUINO
+        </Text>
+        <Text style={styles.subtitle}>Gestión Integral de Restaurantes</Text>
 
-      <View style={styles.boton}>
-        <Button title="Iniciar Sesión" color="#a94442" onPress={handleLogin} />
-      </View>
+        <View style={styles.form}>
+          <View style={styles.inputWrapper}>
+            <Feather name="user" size={24} color="#9CA3AF" style={styles.icon} />
+            <TextInput
+              placeholder="Usuario"
+              placeholderTextColor="#6B7280"
+              style={[
+                styles.input,
+                correoFocus && styles.inputFocus
+              ]}
+              onFocus={() => setCorreoFocus(true)}
+              onBlur={() => setCorreoFocus(false)}
+              value={correo}
+              onChangeText={setCorreo}
+            />
+          </View>
+
+          <View style={styles.inputWrapper}>
+            <Feather name="lock" size={24} color="#9CA3AF" style={styles.icon} />
+            <TextInput
+              placeholder="••••••••"
+              placeholderTextColor="#6B7280"
+              secureTextEntry
+              style={[
+                styles.input,
+                passFocus && styles.inputFocus
+              ]}
+              onFocus={() => setPassFocus(true)}
+              onBlur={() => setPassFocus(false)}
+              value={contrasena}
+              onChangeText={setContrasena}
+            />
+          </View>
+
+          <Pressable
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            onPress={handleLogin}
+            style={({ pressed }) => [
+              styles.button,
+              pressed && styles.buttonPressed
+            ]}
+          >
+            <Text style={styles.buttonText}>Acceder al sistema</Text>
+            <Feather
+              name="arrow-right"
+              size={20}
+              color="#fff"
+              style={{ marginLeft: 8 }}
+            />
+          </Pressable>
+        </View>
+      </Animated.View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fddede', // fondo rosado claro
-    justifyContent: 'center',
-    padding: 25,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 30,
-    color: '#800000',
-  },
-  input: {
-    backgroundColor: '#fff',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    marginVertical: 8,
-    borderRadius: 8,
-    fontSize: 16,
-    color: '#333',
-  },
-  boton: {
-    marginTop: 20,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-});
