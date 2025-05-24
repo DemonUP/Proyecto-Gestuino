@@ -1,29 +1,48 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#e67b7b',
-    padding: 20,
-    justifyContent: 'center',
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 30,
-    textAlign: 'center',
-  },
-  button: {
-    backgroundColor: '#ececec',
-    padding: 15,
-    marginVertical: 10,
-    borderRadius: 15,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontStyle: 'italic',
-    textAlign: 'center',
-  },
-});
+export default StyleSheet.create({
+  wrapper: { flex: 1, flexDirection: 'row', backgroundColor: '#F9FAFB' },
+  mainContent: { flex: 1 },
+  container: {},
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
+  title: { fontSize: 24, fontWeight: '700', color: '#111827' },
+  highlight: { color: '#FF6B35' },
+  status: { color: '#4B5563', marginTop: 4 },
+  onlineDot: { color: '#10B981' },
+  headerActions: { flexDirection: 'row', alignItems: 'center' },
+  logoutButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#E5E7EB', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
+  logoutText: { marginRight: 6, color: '#4B5563', fontWeight: '500', fontSize: 14 },
 
-export default styles;
+  metricsGrid: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start' },
+  metricCard: {
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 12,
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    minHeight: 180, // altura mínima igual para todas las tarjetas
+  },
+  metricHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  metricLabel: { fontSize: 14, color: '#4B5563' },
+  metricValue: { fontSize: 24, fontWeight: '700', color: '#111827', marginTop: 4 },
+  progressBarBg: { height: 4, backgroundColor: '#E5E7EB', borderRadius: 2, marginTop: 16, overflow: 'hidden' },
+  progressBarFill: { height: 4, backgroundColor: '#FF6B35' },
+  metricSubtitle: { fontSize: 12, color: '#4B5563', marginTop: 8 },
+  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 12 },
+  tagBadge: { backgroundColor: '#FEE2E2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, marginRight: 8, marginBottom: 8 },
+  tagText: { fontSize: 14, color: '#991B1B' },
+
+  bottomSection: { marginTop: 24 },
+  trendCard: { backgroundColor: '#FFFFFF', padding: 24, borderRadius: 12, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
+  trendHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  trendTitle: { fontSize: 18, fontWeight: '600', color: '#111827' },
+  trendButtons: { flexDirection: 'row' },
+  trendOption: { marginHorizontal: 8, fontSize: 14, color: '#4B5563' },
+  trendOptionActive: { color: '#FF6B35', fontWeight: '600' },
+  trendPlaceholder: { height: 200, backgroundColor: '#F3F4F6', borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+  trendPlaceholderText: { color: '#9CA3AF', fontSize: 14 },
+});
