@@ -53,6 +53,11 @@ export default function LoginScreen({ onLogin }) {
   };
 
   const handleLogin = async () => {
+    if (!correo.trim() || !contrasena.trim()) {
+      Alert.alert('Advertencia', 'Debe completar todos los campos');
+      return;
+    }
+
     const res = await loginUsuario(correo, contrasena);
     if (res.success) {
       onLogin(res.user);

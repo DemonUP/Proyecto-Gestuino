@@ -1,4 +1,3 @@
-// supabase.js
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -7,30 +6,46 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// ✅ Función para login
+// ✅ Función para login (seguridad reforzada sin cambiar lógica)
 export async function loginUsuario(correo, contrasena) {
-  const { data, error } = await supabase
-    .from('usuarios')
-    .select('id, nombre, apellido, gmail, id_rol, roles (nombre)')
-    .eq('gmail', correo)
-    .eq('contrasena', contrasena)
-    .single();
-
-  if (error || !data) {
-    return { success: false, message: 'Credenciales inválidas' };
+  // Validación estricta
+  if (!correo || !contrasena || correo.trim() === '' || contrasena.trim() === '') {
+    return { success: false, message: 'Debe ingresar correo y contraseña' };
   }
 
-  const user = {
-    id: data.id,
-    nombre: data.nombre,
-    apellido: data.apellido,
-    correo: data.gmail,
-    rol: data.roles?.nombre ?? 'desconocido',
-  };
+  const patronPeligroso = /[;'"\s]/; // Evita caracteres peligrosos
+  if (patronPeligroso.test(correo) || patronPeligroso.test(contrasena)) {
+    return { success: false, message: 'Los datos ingresados tienen formato inválido' };
+  }
 
-  await guardarUsuarioEnSesion(user);
+  try {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('id, nombre, apellido, gmail, id_rol, roles (nombre)')
+      .eq('gmail', correo)
+      .eq('contrasena', contrasena)
+      .single();
 
-  return { success: true, user };
+    if (error || !data) {
+      return { success: false, message: 'Credenciales inválidas' };
+    }
+
+    const user = {
+      id: data.id,
+      nombre: data.nombre,
+      apellido: data.apellido,
+      correo: data.gmail,
+      rol: data.roles?.nombre ?? 'desconocido',
+    };
+
+    await guardarUsuarioEnSesion(user);
+
+    return { success: true, user };
+
+  } catch (e) {
+    console.error('Error interno en loginUsuario', e);
+    return { success: false, message: 'Error del servidor. Intente nuevamente' };
+  }
 }
 
 // ✅ Guardar usuario en AsyncStorage

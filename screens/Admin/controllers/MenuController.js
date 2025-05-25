@@ -84,28 +84,41 @@ export function useMenuController() {
   }
 
   /** Crea un nuevo platillo y sus relaciones */
-  async function crearProducto({ nombre, precio, ingredientesSeleccionados }) {
-    const { data: pd, error: e1 } = await supabase
-      .from('productos')
-      .insert([{ nombre, precio: parseFloat(precio), activo: true }])
-      .select();
-    if (e1) {
-      console.error('Error creando producto:', e1);
-      return null;
-    }
-    const newP = pd[0];
-    const relacion = ingredientesSeleccionados.map(i => ({
-      producto_id: newP.id,
-      ingrediente_id: i.id,
-      cantidad: i.cantidad,
-    }));
-    const { error: e2 } = await supabase
-      .from('productos_ingredientes')
-      .insert(relacion);
-    if (e2) console.error('Error vinculando ingredientes:', e2);
-    await cargarProductos();
-    return newP;
+async function crearProducto({ nombre, precio, ingredientesSeleccionados }) {
+  const precioNumerico = parseFloat(precio);
+  if (isNaN(precioNumerico) || precioNumerico < 0) {
+    console.error('❌ Precio inválido:', precio);
+    return null;
   }
+
+  const { data: pd, error: e1 } = await supabase
+    .from('productos')
+    .insert([{ nombre, precio: precioNumerico, activo: true }])
+    .select();
+
+  if (e1) {
+    console.error('Error creando producto:', e1);
+    return null;
+  }
+
+  const newP = pd[0];
+
+  const relacion = ingredientesSeleccionados.map(i => ({
+    producto_id: newP.id,
+    ingrediente_id: i.id,
+    cantidad: i.cantidad,
+  }));
+
+  const { error: e2 } = await supabase
+    .from('productos_ingredientes')
+    .insert(relacion);
+
+  if (e2) console.error('Error vinculando ingredientes:', e2);
+
+  await cargarProductos();
+  return newP;
+}
+
 
   /** Actualiza nombre de un platillo */
   async function actualizarNombre(id, nombre) {
