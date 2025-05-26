@@ -1,160 +1,235 @@
 import React, { useState } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, TextInput,
+  View,
+  Text,
+  ScrollView,
+  Dimensions,
+  Pressable,
+  TextInput,
+  FlatList,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import styles from '../styles/pedidoStyles';
+import { Feather } from '@expo/vector-icons';
+import AdminSidebar from '../../../components/AdminSidebar';
 import { usePedidoController } from '../controllers/pedidoController';
+import styles from '../styles/pedidoStyles';
 
-export default function PedidoScreen({ navigation }) {
+
+export default function PedidoScreen({ usuario, navigation }) {
+  const isMobile = Dimensions.get('window').width < 600;
   const {
-    mesas, mesaSeleccionada, setMesaSeleccionada,
-    estadoMesa, setEstadoMesa, productos,
-    pedido, pedidosExistentes,
-    agregarProducto, eliminarProductoPorCantidad, eliminarPedidoExistente,
-    actualizarEstadoMesa, enviarPedido,
-    cantidadPersonas, setCantidadPersonas,
-    descripcionMesa, setDescripcionMesa,
+    mesas,
+    mesaSeleccionada,
+    setMesaSeleccionada,
+    cantidadPersonas,
+    setCantidadPersonas,
+    descripcionMesa,
+    setDescripcionMesa,
+    estadoMesa,
+    setEstadoMesa,
+    productos,
+    pedido,
+    pedidosExistentes,
+    agregarProducto,
+    eliminarProductoPorCantidad,
+    eliminarPedidoExistente,
+    actualizarEstadoMesa,
+    enviarPedido,
   } = usePedidoController(navigation);
 
   const [cantidadesEliminar, setCantidadesEliminar] = useState({});
 
+  // Agrupa cantidades en el pedido actual
   const groupedPedido = Object.values(
     pedido.reduce((acc, prod) => {
       const key = prod.id;
-      if (!acc[key]) {
-        acc[key] = { ...prod, cantidad: 1 };
-      } else {
-        acc[key].cantidad += 1;
-      }
+      if (!acc[key]) acc[key] = { ...prod, cantidad: 1 };
+      else acc[key].cantidad++;
       return acc;
     }, {})
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>INGRESO DE PEDIDOS</Text>
-
-      <Text style={styles.label}>Mesa:</Text>
-      <Picker
-        selectedValue={mesaSeleccionada}
-        onValueChange={setMesaSeleccionada}
-        style={styles.input}
+    <View style={styles.wrapper}>
+      {!isMobile && <AdminSidebar />}
+      <ScrollView
+        style={styles.mainContent}
+        contentContainerStyle={styles.contentContainer}
       >
-        <Picker.Item label="-- Seleccionar --" value={null} />
-        {mesas.map((mesa) => (
-          <Picker.Item key={mesa.id} label={`Mesa ${mesa.numero} (${mesa.estado})`} value={mesa.id} />
-        ))}
-      </Picker>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerIconContainer}>
+            <Feather name="clipboard" size={20} color="#fff" />
+          </View>
+          <View>
+            <Text style={styles.headerTitle}>Pedidos</Text>
+            <Text style={styles.headerSubtitle}>Gestión de Pedidos</Text>
+          </View>
+        </View>
 
-      {mesaSeleccionada && (
-        <>
-          <Text style={styles.label}>Cantidad de personas:</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            placeholder="Ej: 4"
-            value={cantidadPersonas}
-            onChangeText={setCantidadPersonas}
-          />
+        {/* Sección de Selección de Mesa */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Mesa</Text>
+          <View style={styles.pickerWrapper}>
+            <Picker
+              selectedValue={mesaSeleccionada}
+              onValueChange={setMesaSeleccionada}
+              style={styles.picker}
+            >
+              <Picker.Item label="-- Seleccionar --" value={null} />
+              {mesas.map(m =>
+                <Picker.Item
+                  key={m.id}
+                  label={`Mesa ${m.numero} (${m.estado})`}
+                  value={m.id}
+                />
+              )}
+            </Picker>
+          </View>
 
-          <Text style={styles.label}>Descripción (opcional):</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ej: Cumpleaños, reunión, etc."
-            value={descripcionMesa}
-            onChangeText={setDescripcionMesa}
-          />
+          {mesaSeleccionada && (
+            <>
+              <Text style={styles.label}>Cantidad de personas</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                placeholder="Ej: 4"
+                value={cantidadPersonas}
+                onChangeText={setCantidadPersonas}
+              />
 
-          <Text style={styles.label}>Estado:</Text>
-          <Picker
-            selectedValue={estadoMesa}
-            onValueChange={setEstadoMesa}
-            style={styles.input}
-          >
-            <Picker.Item label="disponible" value="disponible" />
-            <Picker.Item label="ocupada" value="ocupada" />
-            <Picker.Item label="cerrada" value="cerrada" />
-          </Picker>
-          <TouchableOpacity style={styles.botonRojo} onPress={actualizarEstadoMesa}>
-            <Text style={styles.botonTexto}>ACTUALIZAR ESTADO</Text>
-          </TouchableOpacity>
-        </>
-      )}
+              <Text style={styles.label}>Descripción (opcional)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Ej: Cumpleaños, reunión..."
+                value={descripcionMesa}
+                onChangeText={setDescripcionMesa}
+              />
 
-      <Text style={styles.sectionTitle}>Productos:</Text>
-      <FlatList
-        data={productos}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.item} onPress={() => agregarProducto(item)}>
-            <Text>{item.nombre} - ${item.precio}</Text>
-          </TouchableOpacity>
-        )}
-      />
-
-      {groupedPedido.length > 0 && (
-        <>
-          <Text style={styles.sectionTitle}>Seleccionados:</Text>
-          <FlatList
-            data={groupedPedido}
-            keyExtractor={(item) => item.id.toString()}
-            style={{ maxHeight: 200 }}
-            renderItem={({ item }) => (
-              <View style={styles.row}>
-                <Text>{item.cantidad} x {item.nombre} - ${item.cantidad * item.precio}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <TextInput
-                    style={{
-                      borderWidth: 1,
-                      width: 40,
-                      height: 35,
-                      marginHorizontal: 5,
-                      textAlign: 'center',
-                      backgroundColor: 'white'
-                    }}
-                    keyboardType="numeric"
-                    placeholder="1"
-                    value={cantidadesEliminar[item.id] || ''}
-                    onChangeText={(text) =>
-                      setCantidadesEliminar({ ...cantidadesEliminar, [item.id]: text })
-                    }
-                  />
-                  <TouchableOpacity
-                    onPress={() =>
-                      eliminarProductoPorCantidad(item.id, parseInt(cantidadesEliminar[item.id]) || 1)
-                    }
-                  >
-                    <Text style={styles.delete}>❌</Text>
-                  </TouchableOpacity>
-                </View>
+              <Text style={styles.label}>Estado de la mesa</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  selectedValue={estadoMesa}
+                  onValueChange={setEstadoMesa}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="disponible" value="disponible" />
+                  <Picker.Item label="ocupada" value="ocupada" />
+                  <Picker.Item label="cerrada" value="cerrada" />
+                </Picker>
               </View>
+
+              <Pressable
+                style={[styles.btn, styles.btnPrimary]}
+                onPress={actualizarEstadoMesa}
+              >
+                <Text style={styles.btnPrimaryText}>ACTUALIZAR ESTADO</Text>
+              </Pressable>
+            </>
+          )}
+        </View>
+
+        {/* Sección de Productos */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Productos disponibles</Text>
+          <FlatList
+            data={productos}
+            keyExtractor={i => i.id.toString()}
+            numColumns={isMobile ? 1 : 2}
+            columnWrapperStyle={!isMobile && { justifyContent: 'space-between' }}
+            renderItem={({ item }) => (
+              <Pressable
+                style={styles.productCard}
+                onPress={() => agregarProducto(item)}
+              >
+                <Text style={styles.productName}>{item.nombre}</Text>
+                <Text style={styles.productPrice}>
+                  {item.precio.toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                  })}
+                </Text>
+              </Pressable>
             )}
           />
-        </>
-      )}
+        </View>
 
-      <TouchableOpacity
-        style={[styles.botonRojo, { marginTop: 15 }]}
-        onPress={enviarPedido}
-        disabled={!mesaSeleccionada || pedido.length === 0}
-      >
-        <Text style={styles.botonTexto}>ENVIAR PEDIDO</Text>
-      </TouchableOpacity>
+        {/* Sección de Pedido Actual */}
+        {groupedPedido.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Pedido actual</Text>
+            {groupedPedido.map(prod => (
+              <View key={prod.id} style={styles.orderItem}>
+                <Text style={styles.orderText}>
+                  {prod.cantidad} × {prod.nombre} —{' '}
+                  { (prod.cantidad * prod.precio).toLocaleString('es-CO', {
+                      style: 'currency', currency: 'COP'
+                    })
+                  }
+                </Text>
+                <View style={styles.quantityControls}>
+                  <TextInput
+                    style={styles.quantityInput}
+                    keyboardType="numeric"
+                    placeholder="1"
+                    value={cantidadesEliminar[prod.id]?.toString() || ''}
+                    onChangeText={t =>
+                      setCantidadesEliminar({
+                        ...cantidadesEliminar,
+                        [prod.id]: t,
+                      })
+                    }
+                  />
+                  <Pressable
+                    onPress={() =>
+                      eliminarProductoPorCantidad(
+                        prod.id,
+                        parseInt(cantidadesEliminar[prod.id]) || 1
+                      )
+                    }
+                  >
+                    <Text style={styles.deleteBtn}>✕</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
 
-      {pedidosExistentes.length > 0 && (
-        <>
-          <Text style={styles.sectionTitle}>Pedidos actuales:</Text>
-          {pedidosExistentes.map((p) => (
-            <View key={p.id} style={styles.row}>
-              <Text>{p.cantidad} x {p.productos.nombre} - ${p.productos.precio}</Text>
-              <TouchableOpacity onPress={() => eliminarPedidoExistente(p.id)}>
-                <Text style={styles.delete}>❌</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </>
-      )}
+        {/* Sección de Pedidos Existentes */}
+        {pedidosExistentes.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Pedidos activos</Text>
+            {pedidosExistentes.map(p => (
+              <View key={p.id} style={styles.orderItem}>
+                <Text style={styles.orderText}>
+                  {p.cantidad} × {p.productos.nombre} —{' '}
+                  {p.productos.precio.toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                  })}
+                </Text>
+                <Pressable onPress={() => eliminarPedidoExistente(p.id)}>
+                  <Text style={styles.deleteBtn}>✕</Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Botón Enviar Pedido */}
+        <Pressable
+          style={[
+            styles.btn,
+            styles.btnPrimary,
+            (!mesaSeleccionada || pedido.length === 0) && styles.btnDisabled,
+          ]}
+          onPress={enviarPedido}
+          disabled={!mesaSeleccionada || pedido.length === 0}
+        >
+          <Text style={styles.btnPrimaryText}>ENVIAR PEDIDO</Text>
+        </Pressable>
+      </ScrollView>
     </View>
-  );
+);
 }
