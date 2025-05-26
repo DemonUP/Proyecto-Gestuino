@@ -1,3 +1,4 @@
+// screens/Mesero/screens/MesaScreen.js
 import React from 'react';
 import {
   View,
@@ -6,13 +7,13 @@ import {
   Dimensions,
   Pressable,
   Modal,
-  Text as RNText,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { useMesaController } from '../controllers/mesaController';
 import AdminSidebar from '../../../components/AdminSidebar';
 import styles from '../styles/mesaStyles';
 
-export default function MesaScreen({ navigation }) {
+export default function MesaScreen({ usuario, navigation }) {
   const {
     mesas,
     mesaSeleccionada,
@@ -32,6 +33,19 @@ export default function MesaScreen({ navigation }) {
         style={styles.mainContent}
         contentContainerStyle={styles.contentContainer}
       >
+
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerIconContainer}>
+            <Feather name="grid" size={20} color="#fff" />
+          </View>
+          <View>
+            <Text style={styles.headerTitle}>Mesas</Text>
+            <Text style={styles.headerSubtitle}>Gestión de Mesas</Text>
+          </View>
+        </View>
+
+        {/* Grid de Mesas */}
         <View style={styles.mesasGrid}>
           {mesas.map(mesa => (
             <Pressable
@@ -56,6 +70,7 @@ export default function MesaScreen({ navigation }) {
         </View>
       </ScrollView>
 
+      {/* Modal de pedidos */}
       <Modal
         transparent
         visible={modalVisible}
@@ -72,26 +87,25 @@ export default function MesaScreen({ navigation }) {
           </Text>
 
           {pedidos.length === 0 ? (
-            <Text style={styles.pedidoItem}>
-              No hay pedidos activos.
-            </Text>
+            <Text style={styles.pedidoItem}>No hay pedidos activos.</Text>
           ) : (
             pedidos.map(p => (
               <Text key={p.id} style={styles.pedidoItem}>
                 {p.cantidad} x {p.productos.nombre} —{' '}
-                { (p.cantidad * p.productos.precio)
-                    .toLocaleString('es-CO', { style:'currency',currency:'COP' }) }
+                {(p.cantidad * p.productos.precio).toLocaleString('es-CO', {
+                  style: 'currency',
+                  currency: 'COP',
+                })}
               </Text>
             ))
           )}
 
           <Text style={styles.total}>
             Total:{' '}
-            {total
-              .toLocaleString('es-CO', {
-                style: 'currency',
-                currency: 'COP',
-              })}
+            {total.toLocaleString('es-CO', {
+              style: 'currency',
+              currency: 'COP',
+            })}
           </Text>
 
           <Pressable
@@ -102,20 +116,16 @@ export default function MesaScreen({ navigation }) {
             }}
             disabled={pedidos.length === 0}
           >
-            <RNText style={styles.btnPrimaryText}>
-              Generar Factura
-            </RNText>
+            <Text style={styles.btnPrimaryText}>Generar Factura</Text>
           </Pressable>
           <Pressable
             style={[styles.btn, styles.btnSecondary]}
             onPress={() => setModalVisible(false)}
           >
-            <RNText style={styles.btnSecondaryText}>
-              Cerrar
-            </RNText>
+            <Text style={styles.btnSecondaryText}>Cerrar</Text>
           </Pressable>
         </View>
       </Modal>
     </View>
-  );
+);
 }

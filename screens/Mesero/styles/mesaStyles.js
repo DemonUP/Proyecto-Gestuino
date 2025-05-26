@@ -1,5 +1,7 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
+const isMobile = Dimensions.get('window').width < 600;
+
 export default StyleSheet.create({
   wrapper: {
     flex: 1,
@@ -12,6 +14,33 @@ export default StyleSheet.create({
   contentContainer: {
     padding: 20,
   },
+
+  // Header
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+  },
+  headerIconContainer: {
+    backgroundColor: '#E55A1B',
+    padding: 8,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#3b3b3b',
+    marginTop: 2,
+  },
+
+  // Grid de mesas
   mesasGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -25,9 +54,7 @@ export default StyleSheet.create({
     borderWidth: 2,
     borderColor: '#E2E8F0',
     marginBottom: 16,
-    flexBasis: Dimensions.get('window').width < 600
-      ? '100%'
-      : '48%',
+    flexBasis: isMobile ? '100%' : '48%',
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -52,7 +79,7 @@ export default StyleSheet.create({
     color: '#C53030',
   },
 
-  /* Modal overlay & content */
+  // Modal overlay & contenido
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',

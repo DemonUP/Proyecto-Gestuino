@@ -18,7 +18,6 @@ const meseroItems = [
   { name: 'Inicio Mesero', icon: 'home',        route: 'MeseroHome' },
   { name: 'Mesas',         icon: 'grid',        route: 'Mesas' },
   { name: 'Pedido',        icon: 'file-text',   route: 'Pedido' },
-  { name: 'Factura',       icon: 'credit-card', route: 'Factura' },
 ];
 
 export default function AdminSidebar() {
