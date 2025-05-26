@@ -27,8 +27,8 @@ const RolesScreen = ({ navigation, onLogout }) => {
   const [contrasena, setContrasena] = useState('');
 
   // Turno actual (display)
-  const [horaInicioTurno, setHoraInicioTurno] = useState(new Date());
-  const [horaFinTurno, setHoraFinTurno] = useState(new Date());
+  const [horaInicioTurno] = useState(new Date());
+  const [horaFinTurno] = useState(new Date());
 
   // Estados y pickers del formulario
   const [horaInicioForm, setHoraInicioForm] = useState(horaInicioTurno);
@@ -72,7 +72,7 @@ const RolesScreen = ({ navigation, onLogout }) => {
       hora_inicio: horaInicioText,
       hora_fin:    horaFinText,
     });
-    // reset
+    // Reset formulario
     setNombre('');
     setApellido('');
     setCorreo('');
@@ -81,15 +81,15 @@ const RolesScreen = ({ navigation, onLogout }) => {
     setHoraFinForm(horaFinTurno);
     setHoraInicioText(horaInicioTurno.toTimeString().slice(0, 5));
     setHoraFinText(horaFinTurno.toTimeString().slice(0, 5));
+    // Refresca lista completa tras creación
     const lista = await obtenerMeseros();
     setMeseros(lista);
   };
 
-  // Alternar activo/inactivo
+  // Alternar activo/inactivo: elimina inmediatamente de la lista local
   const toggleEstado = async (id, estado) => {
     await actualizarEstadoMesero(id, !estado);
-    const lista = await obtenerMeseros();
-    setMeseros(lista);
+    setMeseros(prev => prev.filter(m => m.id !== id));
   };
 
   // Cálculo de métricas
@@ -136,19 +136,17 @@ const RolesScreen = ({ navigation, onLogout }) => {
     <View style={styles.wrapper}>
       <AdminSidebar navigation={navigation} activeRoute="Roles" onLogout={onLogout} />
       <ScrollView style={styles.mainContent} contentContainerStyle={styles.container}>
-     
-      {/* Header principal */}
-      <View style={styles.pageHeader}>
-        <View>
-          <Text style={styles.pageTitle}>Gestión de Meseros</Text>
-          <Text style={styles.pageSubtitle}>
-            Meseros activos: {activeCount} | Turno actual:{' '}
-            {horaInicioTurno.toTimeString().slice(0, 5)} -{' '}
-            {horaFinTurno.toTimeString().slice(0, 5)}
-          </Text>
+        {/* Header principal */}
+        <View style={styles.pageHeader}>
+          <View>
+            <Text style={styles.pageTitle}>Gestión de Meseros</Text>
+            <Text style={styles.pageSubtitle}>
+              Meseros activos: {activeCount} | Turno actual:{' '}
+              {horaInicioTurno.toTimeString().slice(0, 5)} -{' '}
+              {horaFinTurno.toTimeString().slice(0, 5)}
+            </Text>
+          </View>
         </View>
-      </View>
-
 
         {/* Top: Form + Stats */}
         <View style={styles.topSection}>
@@ -275,9 +273,9 @@ const RolesScreen = ({ navigation, onLogout }) => {
               </View>
             </View>
             <TouchableOpacity style={styles.newButton} onPress={handleCrear}>
-            <Ionicons name="add-outline" size={20} color="#FFF" />
-            <Text style={styles.newButtonText}>Nuevo Mesero</Text>
-          </TouchableOpacity>
+              <Ionicons name="add-outline" size={20} color="#FFF" />
+              <Text style={styles.newButtonText}>Nuevo Mesero</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Estadísticas */}
@@ -309,7 +307,7 @@ const RolesScreen = ({ navigation, onLogout }) => {
         <View style={styles.listContainer}>
           <Text style={styles.listTitle}>Lista de Meseros Activos</Text>
           <FlatList
-            data={meseros}
+            data={meseros.filter(m => m.estado)}
             keyExtractor={item => item.id.toString()}
             renderItem={({ item }) => (
               <View style={styles.listItem}>
@@ -319,7 +317,7 @@ const RolesScreen = ({ navigation, onLogout }) => {
                   </View>
                   <View>
                     <Text style={styles.listName}>{item.nombre}</Text>
-                    <Text style={styles.listEmail}>{item.correo}</Text>
+                    <Text style={styles.listEmail}>{item.gmail}</Text>
                   </View>
                 </View>
                 <View style={styles.listItemRight}>

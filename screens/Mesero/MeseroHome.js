@@ -4,8 +4,10 @@ import {
   Text,
   ScrollView,
   Pressable,
+  TouchableOpacity,
   Dimensions,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useMesaController } from './controllers/mesaController';
 import AdminSidebar from '../../components/AdminSidebar';
 import styles from './styles/MeseroHomeStyles';
@@ -44,17 +46,18 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
 
   const stats = [
     { key: 'pedidos', label: 'Pedidos activos', value: pedidos.length.toString() },
-    { key: 'mesas', label: 'Mesas asignadas', value: mesas.length.toString() },
-    { key: 'propinas', label: 'Propinas hoy', value: '$1,240' },
+    { key: 'mesas',   label: 'Mesas asignadas', value: mesas.length.toString() },
+    { key: 'propinas',label: 'Propinas hoy',    value: '$1,240' },
   ];
 
   function StatCard({ stat, isLast }) {
     return (
-      <View style={[
+      <View
+        style={[
           styles.statCard,
-          { flex: 1, marginRight: isLast ? 0 : GAP }
+          { flex: 1, marginRight: isLast ? 0 : GAP },
         ]}
-      >  
+      >
         <Text style={styles.statValue}>{stat.value}</Text>
         <Text style={styles.statLabel}>{stat.label}</Text>
       </View>
@@ -84,8 +87,15 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
         </View>
         {mesa.pedidos?.map((p, i) => (
           <View key={i} style={styles.pedidoItem}>
-            <Text>{p.cantidad}x {p.productos.nombre}</Text>
-            <Text>{(p.cantidad * p.productos.precio).toLocaleString('es-CO', {style:'currency',currency:'COP'})}</Text>
+            <Text>
+              {p.cantidad}x {p.productos.nombre}
+            </Text>
+            <Text>
+              {(p.cantidad * p.productos.precio).toLocaleString('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+              })}
+            </Text>
           </View>
         ))}
       </Pressable>
@@ -94,17 +104,41 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
 
   return (
     <View style={styles.wrapper}>
-      <AdminSidebar />
+      {/* Sidebar con logout */}
+      <AdminSidebar
+        navigation={navigation}
+        activeRoute="MeseroHome"
+        onLogout={onLogout}
+      />
+
       <ScrollView
         style={styles.mainContent}
         contentContainerStyle={styles.contentContainer}
       >
-        {/* Mensaje de bienvenida */}
-        <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 24 }}>
-          ¡Bienvenido, mesero/a {usuario.nombre} {usuario.apellido}!
-        </Text>
+        {/* Header: bienvenida + botón cerrar sesión */}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 24,
+            paddingHorizontal: PADDING,
+          }}
+        >
+          <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
+            ¡Bienvenido, mesero/a {usuario.nombre} {usuario.apellido}!
+          </Text>
+          <TouchableOpacity
+            onPress={onLogout}
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+            activeOpacity={0.7}
+          >
+            <Text style={{ marginRight: 4, fontSize: 16 }}>Cerrar Sesión</Text>
+            <Ionicons name="log-out-outline" size={20} color="#4B5563" />
+          </TouchableOpacity>
+        </View>
 
-        {/* Estadísticas en una sola fila */}
+        {/* Estadísticas */}
         <View style={{ flexDirection: 'row', marginBottom: GAP }}>
           {stats.map((s, i) => (
             <StatCard key={s.key} stat={s} isLast={i === stats.length - 1} />
@@ -115,12 +149,17 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
         <View style={styles.tablesSection}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Mesas Asignadas</Text>
-            <Pressable style={styles.newButton} onPress={() => navigation.navigate('Pedido')}>
+            <Pressable
+              style={styles.newButton}
+              onPress={() => navigation.navigate('Pedido')}
+            >
               <Text style={styles.newButtonText}>+ Nuevo Pedido</Text>
             </Pressable>
           </View>
           <View style={styles.mesasGrid}>
-            {mesas.map(mesa => <MesaCard key={mesa.id} mesa={mesa} />)}
+            {mesas.map((mesa) => (
+              <MesaCard key={mesa.id} mesa={mesa} />
+            ))}
           </View>
         </View>
       </ScrollView>

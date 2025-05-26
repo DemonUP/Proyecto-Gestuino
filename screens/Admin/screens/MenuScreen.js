@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import {
   Pressable,
   Switch,
   Dimensions,
-  Button,
 } from 'react-native';
 import { useMenuController } from '../controllers/MenuController';
 import AdminSidebar from '../../../components/AdminSidebar';
@@ -39,14 +38,20 @@ export default function MenuScreen() {
   const [newIngStock, setNewIngStock] = useState('');
   const [deletedIds, setDeletedIds] = useState([]);
 
-  // Filtrar productos ocultos
-  const visibleProductos = productos.filter(p => !deletedIds.includes(p.id));
+  // Sólo mostramos los platos que estén activos y no hayan sido "ocultados"
+  const visibleProductos = productos.filter(
+    p => p.activo && !deletedIds.includes(p.id)
+  );
 
-  // Ocultar plato en la UI
+  // Ocultar plato en la UI sin tocar la base de datos
   const confirmDelete = id =>
-    Alert.alert('Confirmar eliminación', '¿Ocultar este platillo?', [
+    Alert.alert('Confirmar ocultación', '¿Ocultar este platillo de la vista?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Eliminar', style: 'destructive', onPress: () => setDeletedIds(prev => [...prev, id]) },
+      {
+        text: 'Ocultar',
+        style: 'destructive',
+        onPress: () => setDeletedIds(prev => [...prev, id]),
+      },
     ]);
 
   // Precargar datos para edición
@@ -67,12 +72,14 @@ export default function MenuScreen() {
     setShowForm(true);
   };
 
-  // Ajustar cantidad en selección
+  // Cambiar cantidad de ingrediente en el formulario
   const handleCantidadChange = (id, cantidad) =>
     setSelectedIngredientes(prev => {
       if (cantidad <= 0) return prev.filter(i => i.id !== id);
       const exists = prev.find(i => i.id === id);
-      if (exists) return prev.map(i => (i.id === id ? { ...i, cantidad } : i));
+      if (exists) {
+        return prev.map(i => (i.id === id ? { ...i, cantidad } : i));
+      }
       return [...prev, { id, cantidad }];
     });
 
@@ -86,9 +93,11 @@ export default function MenuScreen() {
       precio: newPrecio,
       ingredientesSeleccionados: selectedIngredientes,
     };
-    if (editingId) await editarProducto({ id: editingId, ...payload });
-    else await crearProducto(payload);
-
+    if (editingId) {
+      await editarProducto({ id: editingId, ...payload });
+    } else {
+      await crearProducto(payload);
+    }
     // Reset form
     setShowForm(false);
     setEditingId(null);
@@ -183,7 +192,7 @@ export default function MenuScreen() {
     </View>
   );
 
-  // Tarjeta de cada platillo
+  // Card de cada platillo
   const renderItem = ({ item }) => (
     <Pressable style={({ hovered }) => [styles.card, hovered && styles.cardHover]}>
       <View style={styles.cardHeader}>
@@ -206,12 +215,6 @@ export default function MenuScreen() {
             onPress={() => handleEdit(item)}
           >
             <Text style={styles.actionText}>EDITAR</Text>
-          </Pressable>
-          <Pressable
-            style={({ hovered }) => [styles.actionBtn, hovered && styles.deleteBtnHover]}
-            onPress={() => confirmDelete(item.id)}
-          >
-            <Text style={styles.deleteText}>ELIMINAR</Text>
           </Pressable>
         </View>
       </View>
@@ -240,22 +243,23 @@ export default function MenuScreen() {
             </Pressable>
           )}
         </View>
+
         {showIngForm
           ? renderIngredienteForm()
           : showForm
-          ? renderFormPlatillo()
-          : (
-            <FlatList
-              data={visibleProductos}
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderItem}
-              numColumns={isMobile ? 1 : 2}
-              columnWrapperStyle={!isMobile && { justifyContent: 'space-between' }}
-              ListEmptyComponent={
-                <Text style={styles.emptyText}>No hay productos registrados.</Text>
-              }
-            />
-          )}
+            ? renderFormPlatillo()
+            : (
+              <FlatList
+                data={visibleProductos}
+                keyExtractor={item => item.id.toString()}
+                renderItem={renderItem}
+                numColumns={isMobile ? 1 : 2}
+                columnWrapperStyle={!isMobile && { justifyContent: 'space-between' }}
+                ListEmptyComponent={
+                  <Text style={styles.emptyText}>No hay productos registrados.</Text>
+                }
+              />
+            )}
       </ScrollView>
     </View>
   );
