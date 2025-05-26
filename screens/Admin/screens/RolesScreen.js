@@ -136,26 +136,19 @@ const RolesScreen = ({ navigation, onLogout }) => {
     <View style={styles.wrapper}>
       <AdminSidebar navigation={navigation} activeRoute="Roles" onLogout={onLogout} />
       <ScrollView style={styles.mainContent} contentContainerStyle={styles.container}>
-        {/* Header */}
-        <View style={styles.headerSection}>
-          <View style={styles.headerTitle}>
-            <View style={styles.headerIconBg}>
-              <Ionicons name="person-add-outline" size={24} color="#FFF" />
-            </View>
-            <Text style={styles.headerText}>Gestión de Meseros</Text>
-          </View>
-          <TouchableOpacity style={styles.newButton} onPress={handleCrear}>
-            <Ionicons name="add-outline" size={20} color="#FFF" />
-            <Text style={styles.newButtonText}>Nuevo Mesero</Text>
-          </TouchableOpacity>
+     
+      {/* Header principal */}
+      <View style={styles.pageHeader}>
+        <View>
+          <Text style={styles.pageTitle}>Gestión de Meseros</Text>
+          <Text style={styles.pageSubtitle}>
+            Meseros activos: {activeCount} | Turno actual:{' '}
+            {horaInicioTurno.toTimeString().slice(0, 5)} -{' '}
+            {horaFinTurno.toTimeString().slice(0, 5)}
+          </Text>
         </View>
+      </View>
 
-        {/* Subheader */}
-        <Text style={styles.subHeader}>
-          Meseros activos: {activeCount} | Turno actual:{' '}
-          {horaInicioTurno.toTimeString().slice(0, 5)} -{' '}
-          {horaFinTurno.toTimeString().slice(0, 5)}
-        </Text>
 
         {/* Top: Form + Stats */}
         <View style={styles.topSection}>
@@ -281,6 +274,10 @@ const RolesScreen = ({ navigation, onLogout }) => {
                 )}
               </View>
             </View>
+            <TouchableOpacity style={styles.newButton} onPress={handleCrear}>
+            <Ionicons name="add-outline" size={20} color="#FFF" />
+            <Text style={styles.newButtonText}>Nuevo Mesero</Text>
+          </TouchableOpacity>
           </View>
 
           {/* Estadísticas */}
