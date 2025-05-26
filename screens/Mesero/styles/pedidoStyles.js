@@ -1,82 +1,141 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
-export const webToastStyle = {
-  position: 'fixed',
-  bottom: '70px',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  backgroundColor: '#c0392b',
-  color: 'white',
-  padding: '12px',
-  paddingLeft: '20px',
-  paddingRight: '20px',
-  borderRadius: '8px',
-  fontSize: '14px',
-  zIndex: '9999',
-  boxShadow: '0px 2px 8px rgba(0,0,0,0.2)',
-  opacity: '0',
-  transition: 'opacity 0.3s ease',
-};
+const isMobile = Dimensions.get('window').width < 600;
 
 export default StyleSheet.create({
-  container: {
+  wrapper: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#e89993',
+    flexDirection: 'row',
+    backgroundColor: '#F7FAFC',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  mainContent: { flex: 1 },
+  contentContainer: { padding: 20 },
+
+  // Header
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+  },
+  headerIconContainer: {
+    backgroundColor: '#E55A1B',
+    padding: 8,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1a1a1a' },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#3b3b3b',
+    marginTop: 2,
+  },
+
+  // Section wrapper
+  section: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 20,
-    color: '#fff',
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
   },
   label: {
-    fontWeight: 'bold',
-    marginTop: 10,
+    fontSize: 14,
+    color: '#2D3748',
+    marginBottom: 6,
+    fontWeight: '600',
   },
+  pickerWrapper: {
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
+    marginBottom: 12,
+    overflow: 'hidden',
+  },
+  picker: { height: 44, width: '100%' },
   input: {
     backgroundColor: '#fff',
-    padding: 8,
-    borderRadius: 5,
-    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 12,
   },
+
+  // Productos grid
+  productCard: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+    flexBasis: isMobile ? '100%' : '48%',
+  },
+  productName: { fontSize: 16, color: '#2D3748', marginBottom: 4 },
+  productPrice: { fontSize: 14, fontWeight: '600', color: '#FF6B35' },
+
+  // Pedido items
   sectionTitle: {
-    marginTop: 20,
-    fontSize: 18,
-    fontWeight: 'bold',
-    borderBottomWidth: 1,
-    borderColor: '#000',
-    paddingBottom: 5,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2D3748',
+    marginBottom: 12,
   },
-  item: {
-    backgroundColor: '#fdd',
-    padding: 10,
-    marginVertical: 5,
-    borderRadius: 5,
-  },
-  row: {
+  orderItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: '#fff',
-    padding: 10,
-    marginVertical: 4,
-    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: '#FF6B35',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
   },
-  delete: {
-    color: 'red',
-    fontWeight: 'bold',
+  orderText: { color: '#2D3748', fontSize: 14, flex: 1 },
+
+  quantityControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 12,
   },
-  botonRojo: {
-    backgroundColor: '#a94442',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+  quantityInput: {
+    width: 50,
+    height: 36,
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    borderRadius: 6,
+    textAlign: 'center',
+    marginRight: 8,
+    backgroundColor: '#fff',
+  },
+  deleteBtn: {
+    color: '#C53030',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+
+  // Botones
+  btn: {
+    width: '100%',
+    paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
+    marginBottom: 24,
   },
-  botonTexto: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
+  btnPrimary: {
+    backgroundColor: '#FF6B35',
+  },
+  btnPrimaryText: { color: '#fff', fontWeight: '700' },
+  btnDisabled: {
+    backgroundColor: '#E2E8F0',
+  },
+
+  btnSecondary: {
+    backgroundColor: '#C53030',
   },
 });

@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   FlatList,
   TextInput,
-  Button,
   ScrollView,
   Alert,
+  Pressable,
   Switch,
-  StyleSheet,
+  Dimensions,
 } from 'react-native';
 import { useMenuController } from '../controllers/MenuController';
+import AdminSidebar from '../../../components/AdminSidebar';
 import styles from '../styles/MenuStyles';
+
+const isMobile = Dimensions.get('window').width < 600;
 
 export default function MenuScreen() {
   const {
@@ -20,15 +23,11 @@ export default function MenuScreen() {
     ingredientes,
     crearProducto,
     crearIngrediente,
-    actualizarNombre,
+    editarProducto,
     toggleActivo,
-    actualizarPrecio,
-    eliminarProducto,
-    editarProducto,       // asumimos que useMenuController lo expone
-    obtenerRelaciones,    // para precargar al editar
+    obtenerRelaciones,
   } = useMenuController();
 
-  // Estados para formularios
   const [showForm, setShowForm] = useState(false);
   const [showIngForm, setShowIngForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -37,13 +36,29 @@ export default function MenuScreen() {
   const [selectedIngredientes, setSelectedIngredientes] = useState([]);
   const [newIngName, setNewIngName] = useState('');
   const [newIngStock, setNewIngStock] = useState('');
+  const [deletedIds, setDeletedIds] = useState([]);
 
-  // Si entramos a editar, precargamos datos
+  // Sólo mostramos los platos que estén activos y no hayan sido "ocultados"
+  const visibleProductos = productos.filter(
+    p => p.activo && !deletedIds.includes(p.id)
+  );
+
+  // Ocultar plato en la UI sin tocar la base de datos
+  const confirmDelete = id =>
+    Alert.alert('Confirmar ocultación', '¿Ocultar este platillo de la vista?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Ocultar',
+        style: 'destructive',
+        onPress: () => setDeletedIds(prev => [...prev, id]),
+      },
+    ]);
+
+  // Precargar datos para edición
   const handleEdit = async item => {
     setEditingId(item.id);
     setNewNombre(item.nombre);
     setNewPrecio(item.precio.toString());
-    // traemos relaciones actuales
     const { data: rels } = await obtenerRelaciones(item.id);
     setSelectedIngredientes(
       ingredientes
@@ -53,15 +68,14 @@ export default function MenuScreen() {
         })
         .filter(x => x)
     );
+    setShowIngForm(false);
     setShowForm(true);
   };
 
-  // Cambiar cantidad de ingrediente
+  // Cambiar cantidad de ingrediente en el formulario
   const handleCantidadChange = (id, cantidad) =>
     setSelectedIngredientes(prev => {
-      if (cantidad <= 0) {
-        return prev.filter(i => i.id !== id);
-      }
+      if (cantidad <= 0) return prev.filter(i => i.id !== id);
       const exists = prev.find(i => i.id === id);
       if (exists) {
         return prev.map(i => (i.id === id ? { ...i, cantidad } : i));
@@ -69,26 +83,22 @@ export default function MenuScreen() {
       return [...prev, { id, cantidad }];
     });
 
-  // Guardar creación o edición de platillo
+  // Guardar o actualizar platillo
   const handleSubmitPlatillo = async () => {
     if (!newNombre || !newPrecio || selectedIngredientes.length === 0) {
       return Alert.alert('Error', 'Completa todos los campos');
     }
+    const payload = {
+      nombre: newNombre,
+      precio: newPrecio,
+      ingredientesSeleccionados: selectedIngredientes,
+    };
     if (editingId) {
-      await editarProducto({
-        id: editingId,
-        nombre: newNombre,
-        precio: newPrecio,
-        ingredientesSeleccionados: selectedIngredientes,
-      });
+      await editarProducto({ id: editingId, ...payload });
     } else {
-      await crearProducto({
-        nombre: newNombre,
-        precio: newPrecio,
-        ingredientesSeleccionados: selectedIngredientes,
-      });
+      await crearProducto(payload);
     }
-    // reset
+    // Reset form
     setShowForm(false);
     setEditingId(null);
     setNewNombre('');
@@ -107,22 +117,7 @@ export default function MenuScreen() {
     setNewIngStock('');
   };
 
-  // Confirmar y eliminar platillo (y borrar ingredientes vinculados)
-  const confirmDelete = id =>
-    Alert.alert('Confirmar eliminación', '¿Eliminar este platillo?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: async () => {
-          await eliminarProducto(id, { borrarInventario: true });
-          // opcional: feedback inmediato
-          Alert.alert('Eliminado', 'El platillo ha sido eliminado.');
-        },
-      },
-    ]);
-    
-  // Formulario para nuevo ingrediente
+  // Formulario para agregar ingrediente
   const renderIngredienteForm = () => (
     <View style={styles.formContainer}>
       <TextInput
@@ -138,8 +133,12 @@ export default function MenuScreen() {
         keyboardType="numeric"
         style={styles.input}
       />
-      <Button title="Guardar Ingrediente" onPress={handleSubmitIngrediente} />
-      <Button title="Cancelar" onPress={() => setShowIngForm(false)} color="red" />
+      <Pressable style={styles.primaryBtn} onPress={handleSubmitIngrediente}>
+        <Text style={styles.primaryBtnText}>Guardar Ingrediente</Text>
+      </Pressable>
+      <Pressable style={styles.dangerBtn} onPress={() => setShowIngForm(false)}>
+        <Text style={styles.dangerBtnText}>Cancelar</Text>
+      </Pressable>
     </View>
   );
 
@@ -159,18 +158,19 @@ export default function MenuScreen() {
         keyboardType="numeric"
         style={styles.input}
       />
-
       <Text style={styles.label}>Ingredientes:</Text>
       <ScrollView style={styles.scrollIngredientes}>
         {ingredientes.map(i => (
           <View key={i.id} style={styles.filaIngrediente}>
-            <Text>{i.nombre} (Stock: {i.stock})</Text>
+            <Text style={styles.ingredientName}>
+              {i.nombre} (Stock: {i.stock})
+            </Text>
             <TextInput
               placeholder="0"
-              value={(
+              value={
                 selectedIngredientes.find(si => si.id === i.id)?.cantidad?.toString() ||
                 ''
-              )}
+              }
               keyboardType="numeric"
               style={styles.inputCantidad}
               onChangeText={t => handleCantidadChange(i.id, parseInt(t) || 0)}
@@ -178,70 +178,89 @@ export default function MenuScreen() {
           </View>
         ))}
       </ScrollView>
-
-      <Button title="Agregar Ingrediente" onPress={() => setShowIngForm(true)} />
-      <Button
-        title={editingId ? 'Guardar Cambios' : 'Guardar Platillo'}
-        onPress={handleSubmitPlatillo}
-      />
-      <Button title="Cancelar" onPress={() => setShowForm(false)} color="red" />
+      <Pressable style={styles.primaryBtn} onPress={() => setShowIngForm(true)}>
+        <Text style={styles.primaryBtnText}>+ Añadir Ingrediente</Text>
+      </Pressable>
+      <Pressable style={styles.primaryBtn} onPress={handleSubmitPlatillo}>
+        <Text style={styles.primaryBtnText}>
+          {editingId ? 'Guardar Cambios' : 'Guardar Platillo'}
+        </Text>
+      </Pressable>
+      <Pressable style={styles.dangerBtn} onPress={() => setShowForm(false)}>
+        <Text style={styles.dangerBtnText}>Cancelar</Text>
+      </Pressable>
     </View>
   );
 
-  // Render de cada platillo en la lista
+  // Card de cada platillo
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Text style={styles.nombreProducto}>{item.nombre}</Text>
-
-      <View style={styles.filaPrecio}>
-        <Text style={styles.label}>Precio:</Text>
-        <Text style={styles.precioTexto}>${item.precio.toFixed(2)}</Text>
-      </View>
-
-      {faltantes[item.id]?.length > 0 && (
-        <View style={styles.faltantesContainer}>
-          <Text style={styles.etiquetaFaltan}>Faltan:</Text>
-          {faltantes[item.id].map((ing, idx) => (
-            <Text key={idx} style={styles.ingredienteFaltante}>
-              • {ing}
+    <Pressable style={({ hovered }) => [styles.card, hovered && styles.cardHover]}>
+      <View style={styles.cardHeader}>
+        <View>
+          <Text style={styles.nombreProducto}>{item.nombre}</Text>
+          <View style={styles.filaPrecio}>
+            <Text style={styles.label}>Precio:</Text>
+            <Text style={styles.precioTexto}>
+              {item.precio.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
             </Text>
+          </View>
+          <View style={styles.filaActivo}>
+            <Text style={styles.labelActivo}>Activo:</Text>
+            <Switch value={item.activo} onValueChange={val => toggleActivo(item.id, val)} />
+          </View>
+        </View>
+        <View style={styles.actionRow}>
+          <Pressable
+            style={({ hovered }) => [styles.actionBtn, hovered && styles.actionBtnHover]}
+            onPress={() => handleEdit(item)}
+          >
+            <Text style={styles.actionText}>EDITAR</Text>
+          </Pressable>
+        </View>
+      </View>
+      {faltantes[item.id]?.length > 0 && (
+        <View style={styles.ingredientsContainer}>
+          {faltantes[item.id].map((ing, idx) => (
+            <Text key={idx} style={styles.ingredientLine}>● {ing}</Text>
           ))}
         </View>
       )}
-
-      <View style={styles.filaActivo}>
-        <Text style={styles.labelActivo}>Activo:</Text>
-        <Switch
-          value={item.activo}
-          onValueChange={val => toggleActivo(item.id, val)}
-        />
-      </View>
-
-      <View style={styles.filaAcciones}>
-        <Button title="Editar" onPress={() => handleEdit(item)} />
-        <Button title="Eliminar" color="red" onPress={() => confirmDelete(item.id)} />
-      </View>
-    </View>
+    </Pressable>
   );
 
   return (
-    <View style={styles.container}>
-      {!showForm && <Button title="Agregar Platillo" onPress={() => setShowForm(true)} />}
-      {showForm
-        ? showIngForm
+    <View style={styles.wrapper}>
+      {!isMobile && <AdminSidebar />}
+      <ScrollView style={styles.mainContent} contentContainerStyle={styles.contentContainer}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.headerTitle}>Menú</Text>
+            <Text style={styles.headerSubtitle}>Menú del Restaurante</Text>
+          </View>
+          {!showForm && (
+            <Pressable style={styles.newButton} onPress={() => setShowForm(true)}>
+              <Text style={styles.newButtonText}>+ Nuevo Plato</Text>
+            </Pressable>
+          )}
+        </View>
+
+        {showIngForm
           ? renderIngredienteForm()
-          : renderFormPlatillo()
-        : (
-          <>
-            <Text style={styles.titulo}>Menú del Restaurante</Text>
-            <FlatList
-              data={productos}
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderItem}
-              ListEmptyComponent={<Text>No hay productos registrados.</Text>}
-            />
-          </>
-        )}
+          : showForm
+            ? renderFormPlatillo()
+            : (
+              <FlatList
+                data={visibleProductos}
+                keyExtractor={item => item.id.toString()}
+                renderItem={renderItem}
+                numColumns={isMobile ? 1 : 2}
+                columnWrapperStyle={!isMobile && { justifyContent: 'space-between' }}
+                ListEmptyComponent={
+                  <Text style={styles.emptyText}>No hay productos registrados.</Text>
+                }
+              />
+            )}
+      </ScrollView>
     </View>
   );
 }

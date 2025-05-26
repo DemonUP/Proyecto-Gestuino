@@ -18,22 +18,40 @@ export function usePedidoController(navigation) {
   const [descripcionMesa, setDescripcionMesa] = useState('');
 
   const mostrarToast = (mensaje) => {
-    if (Platform.OS === 'android') {
-      ToastAndroid.show(mensaje, ToastAndroid.LONG);
-    } else {
-      const toast = document.createElement('div');
-      toast.textContent = mensaje;
+  if (Platform.OS === 'android') {
+    ToastAndroid.show(mensaje, ToastAndroid.LONG);
+  } else {
+    const toast = document.createElement('div');
+    toast.textContent = mensaje;
+
+    if (webToastStyle && typeof webToastStyle === 'object') {
       Object.entries(webToastStyle).forEach(([key, value]) => {
         toast.style[key] = value;
       });
-      document.body.appendChild(toast);
-      setTimeout(() => (toast.style.opacity = '1'), 10);
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => document.body.removeChild(toast), 300);
-      }, 3000);
+    } else {
+      // Estilo por defecto si no existe webToastStyle
+      toast.style.position = 'fixed';
+      toast.style.bottom = '30px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.padding = '12px 24px';
+      toast.style.background = '#333';
+      toast.style.color = 'white';
+      toast.style.borderRadius = '6px';
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity 0.3s ease';
+      toast.style.zIndex = '9999';
     }
-  };
+
+    document.body.appendChild(toast);
+    setTimeout(() => (toast.style.opacity = '1'), 10);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => document.body.removeChild(toast), 300);
+    }, 3000);
+  }
+};
+
 
   useEffect(() => {
     const cargarUsuario = async () => {

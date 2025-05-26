@@ -1,20 +1,44 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
+const isMobile = Dimensions.get('window').width < 600;
+
 
 export default StyleSheet.create({
+
+  
   wrapper: {
     flex: 1,
     flexDirection: 'row',
     backgroundColor: '#F3F4F6',
   },
+
   mainContent: {
     flex: 1,
-    padding: 20,           // espacio alrededor igual al dashboard
+    padding: 40,           // espacio alrededor igual al dashboard
   },
   container: {
     paddingBottom: 32,
   },
 
   // Header
+  pageHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 20,
+  },
+
+    pageTitle: {
+    fontSize: isMobile ? 18 : 24,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+
+  pageSubtitle: {
+  fontSize: isMobile ? 12 : 14,
+  color: '#555',
+  marginTop: 4,
+  },
+
   headerSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -138,7 +162,7 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#fff5f5',
     borderRadius: 8,
     marginBottom: 8,
   },

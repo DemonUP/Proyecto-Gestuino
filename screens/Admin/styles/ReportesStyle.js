@@ -3,55 +3,133 @@ import { StyleSheet, Dimensions, Platform } from 'react-native';
 const isMobile = Dimensions.get('window').width < 600;
 
 export default StyleSheet.create({
+  // Contenedor principal para sidebar + contenido
+  wrapper: {
+    flex: 1,
+    flexDirection: Platform.OS === 'web' ? 'row' : 'column',
+    backgroundColor: '#fff5f5',
+  },
+
+  // ScrollView que envuelve el contenido
+  mainContent: {
+    flex: 1,
+    padding: 20,
+  },
+
+  // Contenedor interior con padding
   container: {
     padding: 20,
     backgroundColor: '#fff5f5',
     flex: 1,
   },
-  headerRow: {
+
+  // ─── Header principal ───
+  pageHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
-    flexWrap: 'wrap',
+    marginBottom: 20,
   },
-  titulo: {
-    fontSize: isMobile ? 18 : 22,
+  pageTitle: {
+    fontSize: isMobile ? 18 : 24,
     fontWeight: 'bold',
-    color: '#800000',
+    color: '#333',
   },
-  totalGeneral: {
-    fontSize: isMobile ? 14 : 16,
-    fontWeight: 'bold',
+  pageSubtitle: {
+    fontSize: isMobile ? 12 : 14,
+    color: '#555',
     marginTop: 4,
   },
-  subInfo: {
-    fontSize: isMobile ? 13 : 15,
-    color: '#333',
-    marginTop: 2,
-    fontStyle: 'italic',
+  headerActions: {
+    flexDirection: 'row',
+    gap: 12,    
   },
+
+  // ─── Filas de tarjetas ───
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'stretch',  // estira todas al mismo alto
+    flexWrap: 'wrap',
+    marginBottom: 16,
+    gap: 16,
+  },
+
+  // Título dentro de cada tarjeta
+  titulo: {
+    fontSize: isMobile ? 14 : 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+
+  // Highlight Cards
+  highlightCard: {
+    backgroundColor: '#ffffff',
+    borderLeftWidth: 4,
+    borderLeftColor: '#FF6B35',
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: isMobile ? 12 : 0,
+    width: isMobile ? '100%' : '30%',
+    minHeight: 140,
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  highlightHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  highlightIconContainer: {
+    backgroundColor: '#FFEDD5',
+    padding: 10,
+    borderRadius: 20,
+  },
+  highlightText: {
+    fontSize: isMobile ? 18 : 20,
+    fontWeight: 'bold',
+    color: '#FF6B35',
+  },
+  highlightSubtext: {
+    fontSize: isMobile ? 12 : 14,
+    color: '#555',
+    marginTop: 4,
+  },
+
+  // Botones de acción
   botonesTop: {
     flexDirection: 'row',
-    gap: 10,
-    marginTop: isMobile ? 10 : 0,
+    gap: 12,
+    marginBottom: 20,
   },
   botonCuadrado: {
-    width: isMobile ? 38 : 42,
-    height: isMobile ? 38 : 42,
-    backgroundColor: '#B22222',
+    width: 44,
+    height: 44,
+    backgroundColor: '#FF6B35',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   iconoBoton: {
     color: '#fff',
     fontSize: isMobile ? 20 : 22,
   },
+
+  // Popup de filtros (calendario web)
   filtroPopup: {
     position: 'absolute',
     right: 20,
-    top: isMobile ? 80 : 100,
+    top: isMobile ? 90 : 100,
     backgroundColor: '#fff',
     padding: isMobile ? 8 : 10,
     borderRadius: 10,
@@ -65,36 +143,43 @@ export default StyleSheet.create({
     gap: 8,
     transform: [{ scale: isMobile ? 0.9 : 1 }],
   },
-  cardMesa: {
-    backgroundColor: '#ffe6e6',
-    borderRadius: 10,
-    marginBottom: 15,
-    padding: 10,
-  },
-  mesaHeader: {
+
+  // Filas de mesas y ventas
+  mesaRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 10,
+    padding: 12,
+    backgroundColor: '#fff7f2',
+    borderRadius: 8,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  mesaBadge: {
+    backgroundColor: '#FFEDD5',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontWeight: '600',
+    color: '#FF6B35',
+  },
+  ventaRow: {
+    backgroundColor: '#fffaf0',
+    borderRadius: 8,
+    padding: 12,
     marginBottom: 8,
   },
-  mesaTitulo: {
-    fontWeight: 'bold',
-    fontSize: isMobile ? 14 : 16,
-    flex: 1,
-  },
-  totalMesa: {
-    fontWeight: 'bold',
+  ventaTexto: {
     fontSize: isMobile ? 12 : 14,
     color: '#333',
   },
-  ventaItem: {
-    backgroundColor: '#ffecec',
-    marginBottom: 8,
-    borderRadius: 8,
-    padding: 10,
-  },
-  total: {
+  ventaTotal: {
     fontWeight: 'bold',
+    color: '#FF6B35',
     marginTop: 4,
   },
 });
