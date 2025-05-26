@@ -6,13 +6,18 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  Button,
   Platform,
-  ToastAndroid
+  ScrollView,
+  Pressable,
+  Dimensions,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import supabase from '../../../supabase';
 import { crearIngrediente } from '../controllers/InventarioController';
+import AdminSidebar from '../../../components/AdminSidebar';
 import styles, { webToastStyle } from '../styles/InventarioStyle';
+
+const isMobile = Dimensions.get('window').width < 600;
 
 export default function InventarioScreen() {
   const [ingredientes, setIngredientes] = useState([]);
@@ -27,13 +32,15 @@ export default function InventarioScreen() {
 
   const toast = msg => {
     if (Platform.OS === 'android') {
-      ToastAndroid.show(msg, ToastAndroid.SHORT);
+      import('react-native').then(({ ToastAndroid }) => {
+        ToastAndroid.show(msg, ToastAndroid.SHORT);
+      });
     } else {
       const t = document.createElement('div');
       t.textContent = msg;
-      Object.entries(webToastStyle).forEach(([k, v]) => (t.style[k] = v));
+      Object.entries(webToastStyle).forEach(([k, v]) => t.style[k] = v);
       document.body.appendChild(t);
-      setTimeout(() => (t.style.opacity = '1'), 10);
+      setTimeout(() => t.style.opacity = '1', 10);
       setTimeout(() => {
         t.style.opacity = '0';
         setTimeout(() => document.body.removeChild(t), 300);
@@ -47,7 +54,7 @@ export default function InventarioScreen() {
       .select('*')
       .order('nombre', { ascending: true });
     if (error) {
-      console.error('Error cargando ingredientes:', error);
+      console.error(error);
       return;
     }
     setIngredientes(data);
@@ -59,14 +66,13 @@ export default function InventarioScreen() {
       Alert.alert('Error', 'Ingresa una cantidad válida');
       return;
     }
-    const ingrediente = ingredientes.find(i => i.id === id);
-    const nuevoStock = ingrediente.stock + cantidad;
+    const ing = ingredientes.find(i => i.id === id);
     const { error } = await supabase
       .from('ingredientes')
-      .update({ stock: nuevoStock })
+      .update({ stock: ing.stock + cantidad })
       .eq('id', id);
     if (error) {
-      console.error('Error solicitando a bodega:', error);
+      console.error(error);
       toast('Error al solicitar a bodega');
     } else {
       toast('Solicitado a bodega');
@@ -107,16 +113,25 @@ export default function InventarioScreen() {
         keyboardType="numeric"
         style={styles.input}
       />
-      <Button title="Guardar Ingrediente" onPress={handleCreateIngrediente} />
-      <Button title="Cancelar" onPress={() => setShowNewForm(false)} color="red" />
+      <TouchableOpacity style={styles.primaryBtn} onPress={handleCreateIngrediente}>
+        <Text style={styles.primaryBtnText}>Guardar Ingrediente</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.dangerBtn} onPress={() => setShowNewForm(false)}>
+        <Text style={styles.dangerBtnText}>Cancelar</Text>
+      </TouchableOpacity>
     </View>
   );
 
   const renderItem = ({ item }) => (
-    <View style={styles.item}>
+    <Pressable
+      style={({ hovered }) => [styles.item, hovered && styles.itemHover]}
+    >
       <View style={{ flex: 1 }}>
         <Text style={styles.nombre}>{item.nombre}</Text>
-        <Text style={styles.stock}>Stock: {item.stock}</Text>
+        <View style={styles.stockRow}>
+          <Text style={styles.stockLabel}>Stock:</Text>
+          <Text style={styles.stockValue}>{item.stock}</Text>
+        </View>
       </View>
       <View style={styles.filaControles}>
         <TextInput
@@ -126,32 +141,53 @@ export default function InventarioScreen() {
           onChangeText={text => setCantidades({ ...cantidades, [item.id]: text })}
           style={styles.input}
         />
-        <TouchableOpacity
-          style={styles.botonSolicitar}
+        <Pressable
+          style={({ hovered }) => [styles.actionBtn, hovered && styles.actionBtnHover]}
           onPress={() => solicitarABodega(item.id)}
         >
-          <Text style={styles.botonTexto}>Solicitar a bodega</Text>
-        </TouchableOpacity>
+          {({ hovered }) => (
+            <Text style={[styles.actionBtnText, hovered && styles.actionBtnTextHover]}>Solicitar a bodega</Text>
+          )}
+        </Pressable>
       </View>
-    </View>
+    </Pressable>
   );
 
   return (
-    <View style={styles.container}>
-      {showNewForm ? (
-        renderNewForm()
-      ) : (
-        <>
-          <Button title="Agregar Ingrediente" onPress={() => setShowNewForm(true)} />
-          <Text style={styles.titulo}>Inventario de Ingredientes</Text>
+    <View style={styles.wrapper}>
+      {!isMobile && <AdminSidebar />}
+      <ScrollView style={styles.mainContent} contentContainerStyle={styles.contentContainer}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <View style={styles.headerTitleContainer}>
+
+              <Text style={styles.headerTitle}>Inventario de Ingredientes</Text>
+            </View>
+            <Text style={styles.headerSubtitle}>Control de existencias en tiempo real</Text>
+          </View>
+          {!showNewForm && (
+            <TouchableOpacity style={styles.newButton} onPress={() => setShowNewForm(true)}>
+              <Ionicons name="add" size={16} color="#fff" style={{ marginRight: 6 }} />
+              <Text style={styles.newButtonText}>Nuevo Ingrediente</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {showNewForm ? (
+          renderNewForm()
+        ) : (
           <FlatList
             data={ingredientes}
             keyExtractor={item => item.id.toString()}
             renderItem={renderItem}
-            ListEmptyComponent={<Text>No hay ingredientes registrados.</Text>}
+            numColumns={isMobile ? 1 : 2}
+            columnWrapperStyle={!isMobile && { justifyContent: 'space-between' }}
+            ListEmptyComponent={<Text style={styles.emptyText}>No hay ingredientes registrados.</Text>}
           />
-        </>
-      )}
+        )}
+      </ScrollView>
     </View>
   );
 }
+
