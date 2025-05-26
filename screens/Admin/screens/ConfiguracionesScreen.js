@@ -1,32 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  ScrollView,
+  Pressable,
+  Dimensions,
 } from 'react-native';
-import styles from '../styles/ConfiguracionesStyles';
+import { Feather } from '@expo/vector-icons';
+import AdminSidebar from '../../../components/AdminSidebar';
 import {
   obtenerConfiguraciones,
-  actualizarConfiguracion
+  actualizarConfiguracion,
 } from '../controllers/ConfiguracionesController';
+import styles from '../styles/ConfiguracionesStyles';
+
+const isMobile = Dimensions.get('window').width < 600;
 
 export default function ConfiguracionScreen() {
   const [iva, setIva] = useState('');
   const [propina, setPropina] = useState('');
   const [loading, setLoading] = useState(true);
+  const [focusField, setFocusField] = useState(null);
 
   useEffect(() => {
-    const cargar = async () => {
+    (async () => {
       const config = await obtenerConfiguraciones();
       setIva(config.iva.toString());
       setPropina(config.propina.toString());
       setLoading(false);
-    };
-    cargar();
+    })();
   }, []);
 
   const guardar = async () => {
     const ok1 = await actualizarConfiguracion('iva', parseFloat(iva));
     const ok2 = await actualizarConfiguracion('propina', parseFloat(propina));
-
     if (ok1 && ok2) {
       Alert.alert('Éxito', 'Configuraciones guardadas');
     } else {
@@ -36,35 +47,100 @@ export default function ConfiguracionScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#a94442" />
+      <View style={styles.wrapper}>
+        {!isMobile && <AdminSidebar />}
+        <View style={styles.mainContent}>
+          <ActivityIndicator size="large" color="#FF6B35" />
+        </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>Configuraciones del Restaurante</Text>
+    <View style={styles.wrapper}>
+      {!isMobile && <AdminSidebar />}
+      <ScrollView
+        style={styles.mainContent}
+        contentContainerStyle={styles.contentContainer}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerIconContainer}>
+            <Feather name="settings" size={20} color="#fff" />
+          </View>
+          <View>
+            <Text style={styles.headerTitle}>
+              Configuraciones del Restaurante
+            </Text>
+            <Text style={styles.headerSubtitle}>
+              Parámetros operativos principales
+            </Text>
+          </View>
+        </View>
 
-      <Text style={styles.label}>IVA (%)</Text>
-      <TextInput
-        style={styles.input}
-        value={iva}
-        onChangeText={setIva}
-        keyboardType="numeric"
-      />
+        {/* Card */}
+        <Pressable
+          style={({ hovered }) => [
+            styles.configCard,
+            hovered && styles.configCardHover,
+          ]}
+        >
+          {/* IVA */}
+          <View style={styles.field}>
+            <Text style={styles.label}>
+              IVA (%) <Text style={{ color: '#FF6B35' }}>*</Text>
+            </Text>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={[
+                  styles.configInput,
+                  focusField === 'iva' && styles.configInputFocus,
+                ]}
+                value={iva}
+                onChangeText={setIva}
+                keyboardType="numeric"
+                onFocus={() => setFocusField('iva')}
+                onBlur={() => setFocusField(null)}
+                placeholder="19"
+              />
+              <Text style={styles.percentIcon}>%</Text>
+            </View>
+          </View>
 
-      <Text style={styles.label}>Propina (%)</Text>
-      <TextInput
-        style={styles.input}
-        value={propina}
-        onChangeText={setPropina}
-        keyboardType="numeric"
-      />
+          {/* Propina */}
+          <View style={styles.field}>
+            <Text style={styles.label}>
+              Propina (%) <Text style={{ color: '#FF6B35' }}>*</Text>
+            </Text>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={[
+                  styles.configInput,
+                  focusField === 'propina' && styles.configInputFocus,
+                ]}
+                value={propina}
+                onChangeText={setPropina}
+                keyboardType="numeric"
+                onFocus={() => setFocusField('propina')}
+                onBlur={() => setFocusField(null)}
+                placeholder="10"
+              />
+              <Text style={styles.percentIcon}>%</Text>
+            </View>
+          </View>
 
-      <TouchableOpacity style={styles.botonGuardar} onPress={guardar}>
-        <Text style={styles.botonTexto}>Guardar Cambios</Text>
-      </TouchableOpacity>
+          {/* Guardar */}
+          <Pressable
+            style={({ hovered }) => [
+              styles.saveBtn,
+              hovered && styles.saveBtnHover,
+            ]}
+            onPress={guardar}
+          >
+            <Text style={styles.saveBtnText}>Guardar Cambios</Text>
+          </Pressable>
+        </Pressable>
+      </ScrollView>
     </View>
   );
 }
