@@ -45,4 +45,12 @@ export default StyleSheet.create({
   trendOptionActive: { color: '#FF6B35', fontWeight: '600' },
   trendPlaceholder: { height: 200, backgroundColor: '#F3F4F6', borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
   trendPlaceholderText: { color: '#9CA3AF', fontSize: 14 },
+  chartTitle: {
+  fontWeight: 'bold',
+  fontSize: 12,
+  textAlign: 'center',
+  marginBottom: 8,
+  color: '#374151',
+},
+
 });

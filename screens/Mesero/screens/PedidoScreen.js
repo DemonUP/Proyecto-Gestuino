@@ -7,6 +7,7 @@ import {
   Pressable,
   TextInput,
   FlatList,
+  Alert,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Feather } from '@expo/vector-icons';
@@ -14,9 +15,9 @@ import AdminSidebar from '../../../components/AdminSidebar';
 import { usePedidoController } from '../controllers/pedidoController';
 import styles from '../styles/pedidoStyles';
 
-
 export default function PedidoScreen({ usuario, navigation }) {
   const isMobile = Dimensions.get('window').width < 600;
+
   const {
     mesas,
     mesaSeleccionada,
@@ -39,7 +40,6 @@ export default function PedidoScreen({ usuario, navigation }) {
 
   const [cantidadesEliminar, setCantidadesEliminar] = useState({});
 
-  // Agrupa cantidades en el pedido actual
   const groupedPedido = Object.values(
     pedido.reduce((acc, prod) => {
       const key = prod.id;
@@ -49,13 +49,30 @@ export default function PedidoScreen({ usuario, navigation }) {
     }, {})
   );
 
+  // Feedback visual y navegación
+  const handleEnviarPedido = async () => {
+    const exito = await enviarPedido(); // debes retornar true/false desde el hook
+    if (exito) {
+      Alert.alert("Pedido enviado", "El pedido se ha enviado correctamente.");
+      navigation.navigate('AdminHome'); // o la vista que desees
+    } else {
+      Alert.alert("Error", "No se pudo enviar el pedido. Intenta nuevamente.");
+    }
+  };
+
+  const handleActualizarEstado = async () => {
+    const exito = await actualizarEstadoMesa();
+    if (exito) {
+      Alert.alert("Estado actualizado", "El estado de la mesa fue actualizado.");
+    } else {
+      Alert.alert("Error", "No se pudo actualizar el estado.");
+    }
+  };
+
   return (
     <View style={styles.wrapper}>
       {!isMobile && <AdminSidebar />}
-      <ScrollView
-        style={styles.mainContent}
-        contentContainerStyle={styles.contentContainer}
-      >
+      <ScrollView style={styles.mainContent} contentContainerStyle={styles.contentContainer}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerIconContainer}>
@@ -67,7 +84,7 @@ export default function PedidoScreen({ usuario, navigation }) {
           </View>
         </View>
 
-        {/* Sección de Selección de Mesa */}
+        {/* Sección Mesa */}
         <View style={styles.section}>
           <Text style={styles.label}>Mesa</Text>
           <View style={styles.pickerWrapper}>
@@ -77,13 +94,13 @@ export default function PedidoScreen({ usuario, navigation }) {
               style={styles.picker}
             >
               <Picker.Item label="-- Seleccionar --" value={null} />
-              {mesas.map(m =>
+              {mesas.map(m => (
                 <Picker.Item
                   key={m.id}
                   label={`Mesa ${m.numero} (${m.estado})`}
                   value={m.id}
                 />
-              )}
+              ))}
             </Picker>
           </View>
 
@@ -121,7 +138,7 @@ export default function PedidoScreen({ usuario, navigation }) {
 
               <Pressable
                 style={[styles.btn, styles.btnPrimary]}
-                onPress={actualizarEstadoMesa}
+                onPress={handleActualizarEstado}
               >
                 <Text style={styles.btnPrimaryText}>ACTUALIZAR ESTADO</Text>
               </Pressable>
@@ -129,7 +146,7 @@ export default function PedidoScreen({ usuario, navigation }) {
           )}
         </View>
 
-        {/* Sección de Productos */}
+        {/* Productos */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Productos disponibles</Text>
           <FlatList
@@ -154,7 +171,7 @@ export default function PedidoScreen({ usuario, navigation }) {
           />
         </View>
 
-        {/* Sección de Pedido Actual */}
+        {/* Pedido Actual */}
         {groupedPedido.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Pedido actual</Text>
@@ -162,10 +179,10 @@ export default function PedidoScreen({ usuario, navigation }) {
               <View key={prod.id} style={styles.orderItem}>
                 <Text style={styles.orderText}>
                   {prod.cantidad} × {prod.nombre} —{' '}
-                  { (prod.cantidad * prod.precio).toLocaleString('es-CO', {
-                      style: 'currency', currency: 'COP'
-                    })
-                  }
+                  {(prod.cantidad * prod.precio).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP'
+                  })}
                 </Text>
                 <View style={styles.quantityControls}>
                   <TextInput
@@ -196,7 +213,7 @@ export default function PedidoScreen({ usuario, navigation }) {
           </View>
         )}
 
-        {/* Sección de Pedidos Existentes */}
+        {/* Pedidos Existentes */}
         {pedidosExistentes.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Pedidos activos</Text>
@@ -217,19 +234,19 @@ export default function PedidoScreen({ usuario, navigation }) {
           </View>
         )}
 
-        {/* Botón Enviar Pedido */}
+        {/* Enviar Pedido */}
         <Pressable
           style={[
             styles.btn,
             styles.btnPrimary,
             (!mesaSeleccionada || pedido.length === 0) && styles.btnDisabled,
           ]}
-          onPress={enviarPedido}
+          onPress={handleEnviarPedido}
           disabled={!mesaSeleccionada || pedido.length === 0}
         >
           <Text style={styles.btnPrimaryText}>ENVIAR PEDIDO</Text>
         </Pressable>
       </ScrollView>
     </View>
-);
+  );
 }

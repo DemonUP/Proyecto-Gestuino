@@ -3,14 +3,18 @@ import {
   View,
   Text,
   ScrollView,
-  Pressable,
   TouchableOpacity,
   Dimensions,
+  Pressable,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useMesaController } from './controllers/mesaController';
 import AdminSidebar from '../../components/AdminSidebar';
 import styles from './styles/MeseroHomeStyles';
+import {
+  obtenerPedidosActivos,
+  obtenerMesasActivas,
+  obtenerPropinasHoy,
+} from '../../supabase'; // Ajusta si tu archivo está en otra ruta
 
 const SIDEBAR_WIDTH = 280;
 const PADDING = 32;
@@ -23,32 +27,74 @@ function getColumns(width) {
 }
 
 export default function MeseroHome({ usuario, navigation, onLogout }) {
-  const { mesas, pedidos, abrirMesa } = useMesaController(navigation);
-
-  const [layoutWidth, setLayoutWidth] = useState(
-    Dimensions.get('window').width
-  );
-  const [numColumns, setNumColumns] = useState(
-    getColumns(layoutWidth - SIDEBAR_WIDTH)
-  );
+  const [layoutWidth, setLayoutWidth] = useState(Dimensions.get('window').width);
+  const [numColumns, setNumColumns] = useState(getColumns(layoutWidth - SIDEBAR_WIDTH));
+  const [stats, setStats] = useState(null);
+  const [mesas, setMesas] = useState([]);
 
   useEffect(() => {
-    const sub = Dimensions.addEventListener('change', ({ window }) => {
+    const onChange = ({ window }) => {
       setLayoutWidth(window.width);
       setNumColumns(getColumns(window.width - SIDEBAR_WIDTH));
-    });
+    };
+    const sub = Dimensions.addEventListener('change', onChange);
     return () => sub?.remove();
   }, []);
+
+  useEffect(() => {
+    const cargarDatos = async () => {
+      const [pedidos, mesasActivas, propinas] = await Promise.all([
+        obtenerPedidosActivos(),
+        obtenerMesasActivas(),
+        obtenerPropinasHoy(),
+      ]);
+
+      setStats([
+        { key: 'pedidos', label: 'Pedidos activos', value: pedidos.toString() },
+        { key: 'mesas', label: 'Mesas activas', value: mesasActivas.toString() },
+        {
+          key: 'propinas',
+          label: 'Propinas hoy',
+          value: propinas.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+          }),
+        },
+      ]);
+    };
+
+    cargarDatos();
+    cargarMesas();
+  }, []);
+
+  const cargarMesas = async () => {
+    const { data, error } = await supabase
+      .from('mesas')
+      .select(`
+        id,
+        numero,
+        estado,
+        pedidos (
+          cantidad,
+          productos (
+            nombre,
+            precio
+          )
+        )
+      `);
+
+    if (error) {
+      console.error('Error cargando mesas:', error);
+      setMesas([]);
+      return;
+    }
+
+    setMesas(data);
+  };
 
   const contentWidth = layoutWidth - SIDEBAR_WIDTH;
   const cardWidth =
     (contentWidth - PADDING * 2 - GAP * (numColumns - 1)) / numColumns;
-
-  const stats = [
-    { key: 'pedidos', label: 'Pedidos activos', value: pedidos.length.toString() },
-    { key: 'mesas',   label: 'Mesas asignadas', value: mesas.length.toString() },
-    { key: 'propinas',label: 'Propinas hoy',    value: '$1,240' },
-  ];
 
   function StatCard({ stat, isLast }) {
     return (
@@ -65,14 +111,17 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
   }
 
   function MesaCard({ mesa }) {
-    const activa = mesa.estado === 'activa';
+    const estadoMesa = mesa.estado?.toLowerCase();
+    const activa = ['ocupada', 'cerrada'].includes(estadoMesa);
+
     return (
       <Pressable
         style={[
           styles.mesaCard,
           { width: cardWidth, marginRight: GAP },
+          estadoMesa === 'cerrada' && { borderColor: '#7e22ce', borderWidth: 2 },
         ]}
-        onPress={() => abrirMesa(mesa)}
+        onPress={() => navigation.navigate('Pedido', { mesa })}
       >
         <View style={styles.mesaHeader}>
           <Text style={styles.mesaNumero}>Mesa {mesa.numero}</Text>
@@ -80,9 +129,14 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
             style={[
               styles.mesaEstado,
               activa && styles.mesaEstadoActiva,
+              estadoMesa === 'cerrada' && { color: '#7e22ce' },
             ]}
           >
-            {activa ? 'Activa' : 'En espera'}
+            {estadoMesa === 'cerrada'
+              ? 'Cerrada'
+              : activa
+              ? 'Ocupada'
+              : 'Disponible'}
           </Text>
         </View>
         {mesa.pedidos?.map((p, i) => (
@@ -104,7 +158,6 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
 
   return (
     <View style={styles.wrapper}>
-      {/* Sidebar con logout */}
       <AdminSidebar
         navigation={navigation}
         activeRoute="MeseroHome"
@@ -115,7 +168,7 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
         style={styles.mainContent}
         contentContainerStyle={styles.contentContainer}
       >
-        {/* Header: bienvenida + botón cerrar sesión */}
+        {/* Header */}
         <View
           style={{
             flexDirection: 'row',
@@ -139,13 +192,14 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
         </View>
 
         {/* Estadísticas */}
-        <View style={{ flexDirection: 'row', marginBottom: GAP }}>
-          {stats.map((s, i) => (
-            <StatCard key={s.key} stat={s} isLast={i === stats.length - 1} />
-          ))}
+        <View style={{ flexDirection: 'row', marginBottom: GAP, paddingHorizontal: PADDING }}>
+          {stats &&
+            stats.map((s, i) => (
+              <StatCard key={s.key} stat={s} isLast={i === stats.length - 1} />
+            ))}
         </View>
 
-        {/* Sección Mesas */}
+        {/* Mesas */}
         <View style={styles.tablesSection}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Mesas Asignadas</Text>
