@@ -1,4 +1,3 @@
-// screens/Mesero/screens/FacturaScreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -23,7 +22,8 @@ export default function FacturaScreen({ route, navigation }) {
     cerrarCuenta,
     imprimirFactura,
     cantidadPersonas,
-    descripcionMesa
+    descripcionMesa,
+    fechaReservacion 
   } = useFacturaController(mesa, navigation);
 
   const [mostrarToast, setMostrarToast] = useState(false);
@@ -48,6 +48,9 @@ export default function FacturaScreen({ route, navigation }) {
       <Text style={styles.subinfo}>Cantidad de personas: {cantidadPersonas}</Text>
       {descripcionMesa ? (
         <Text style={styles.subinfo}>Descripción: {descripcionMesa}</Text>
+      ) : null}
+      {fechaReservacion ? (
+        <Text style={styles.subinfo}>Fecha de reservación: {fechaReservacion}</Text>
       ) : null}
 
       <FlatList

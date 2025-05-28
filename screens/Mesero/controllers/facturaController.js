@@ -15,6 +15,7 @@ export function useFacturaController(mesa, navigation) {
 
   const [cantidadPersonas, setCantidadPersonas] = useState('');
   const [descripcionMesa, setDescripcionMesa] = useState('');
+  const [fechaReservacion, setFechaReservacion] = useState('');
 
   useEffect(() => {
     obtenerPedidos();
@@ -22,18 +23,33 @@ export function useFacturaController(mesa, navigation) {
   }, []);
 
   const obtenerPedidos = async () => {
-    const { data, error } = await supabase
-      .from('pedidos')
-      .select('id, cantidad, productos:producto_id(nombre, precio)')
-      .eq('mesa_id', mesa.id)
-      .neq('estado', 'facturado');
+  const { data, error } = await supabase
+    .from('pedidos')
+    .select('id, cantidad, creado_en, productos:producto_id(nombre, precio)')
+    .eq('mesa_id', mesa.id)
+    .neq('estado', 'facturado');
 
-    if (error) {
-      console.error('Error al obtener pedidos:', error);
-      return;
-    }
+  if (error) {
+    console.error('Error al obtener pedidos:', error);
+    return;
+  }
 
-    setPedidos(data);
+  setPedidos(data);
+
+  // ✅ Establecer la fecha de reservación
+  if (data.length > 0 && data[0].creado_en) {
+    const fecha = new Date(data[0].creado_en);
+    setFechaReservacion(
+      fecha.toLocaleString('es-CO', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    );
+  }
 
     const sub = data.reduce(
       (acc, p) => acc + p.cantidad * p.productos.precio,
@@ -137,6 +153,7 @@ export function useFacturaController(mesa, navigation) {
     cerrarCuenta,
     imprimirFactura,
     cantidadPersonas,
-    descripcionMesa,
+    descripcionMesa,    
+    fechaReservacion // ✅ este es necesario
   };
 }
