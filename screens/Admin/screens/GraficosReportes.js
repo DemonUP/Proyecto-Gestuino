@@ -18,15 +18,18 @@ export default function GraficosReportes() {
   const [ventasPorMes, setVentasPorMes] = useState([]);
   const [ventasPorAnio, setVentasPorAnio] = useState([]);
   const [ventasPorMesa, setVentasPorMesa] = useState([]);
+  const [platosMasVendidos, setPlatosMasVendidos] = useState([]);
 
   useEffect(() => {
     cargarDatos();
+    cargarPlatosMasVendidos();
   }, []);
 
   const cargarDatos = async () => {
     const { data: pedidos, error } = await supabase
       .from('pedidos')
-      .select('cantidad, productos(precio), creado_en, mesa_id');
+      .select('cantidad, productos(precio), creado_en, mesa_id')
+      .eq('estado', 'facturado');
 
     if (error) return console.error('Error cargando pedidos', error);
 
@@ -67,6 +70,39 @@ export default function GraficosReportes() {
     setVentasPorMes(Object.entries(porMes));
     setVentasPorAnio(Object.entries(porAnio));
     setVentasPorMesa(Object.entries(porMesa));
+  };
+
+  const cargarPlatosMasVendidos = async () => {
+    const { data, error } = await supabase
+      .from('pedidos')
+      .select('producto_id, cantidad, productos(nombre)')
+      .eq('estado', 'facturado');
+
+    if (error) {
+      console.error('Error al cargar platos más vendidos:', error);
+      return;
+    }
+
+    const conteo = {};
+    data.forEach((pedido) => {
+      const nombre = pedido.productos?.nombre;
+      if (!nombre) return;
+      if (!conteo[nombre]) conteo[nombre] = 0;
+      conteo[nombre] += pedido.cantidad;
+    });
+
+    const platos = Object.entries(conteo)
+      .sort((a, b) => b[1] - a[1]) // Top ventas
+      .slice(0, 5)
+      .map(([nombre, cantidad], i) => ({
+        name: nombre,
+        population: cantidad,
+        color: ['#ff6b6b', '#ffa726', '#ffd54f', '#8d6e63', '#90a4ae'][i % 5],
+        legendFontColor: '#000',
+        legendFontSize: 12,
+      }));
+
+    setPlatosMasVendidos(platos);
   };
 
   const prepararDatos = (datos) => ({
@@ -112,6 +148,18 @@ export default function GraficosReportes() {
           legendFontColor: '#000',
           legendFontSize: 12,
         }))}
+        width={screenWidth - 40}
+        height={220}
+        chartConfig={chartConfig}
+        accessor="population"
+        backgroundColor="transparent"
+        paddingLeft="15"
+        style={{ marginVertical: 15 }}
+      />
+
+      <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Platos Más Vendidos</Text>
+      <PieChart
+        data={platosMasVendidos}
         width={screenWidth - 40}
         height={220}
         chartConfig={chartConfig}

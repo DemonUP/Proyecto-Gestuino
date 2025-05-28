@@ -253,3 +253,38 @@ export async function obtenerVentasPorHora() {
     .sort(([a], [b]) => parseInt(a) - parseInt(b))
     .map(([hora, total]) => ({ hora, total }));
 }
+
+const cargarPlatosMasVendidos = async () => {
+  const { data, error } = await supabase
+    .from('pedidos')
+    .select('producto_id, cantidad, productos(nombre)')
+    .eq('estado', 'facturado');
+
+  if (error) {
+    console.error('Error al cargar platos más vendidos:', error);
+    return [];
+  }
+
+  const conteo = {};
+
+  data.forEach((pedido) => {
+    const nombre = pedido.productos?.nombre;
+    if (!nombre) return;
+
+    if (!conteo[nombre]) conteo[nombre] = 0;
+    conteo[nombre] += pedido.cantidad;
+  });
+
+  const platos = Object.entries(conteo)
+    .sort((a, b) => b[1] - a[1]) // Orden descendente
+    .slice(0, 5) // Top 5
+    .map(([nombre, cantidad], i) => ({
+      name: nombre,
+      population: cantidad,
+      color: ['#ff6b6b', '#ffa726', '#ffd54f', '#8d6e63', '#90a4ae'][i % 5],
+      legendFontColor: '#000',
+      legendFontSize: 12,
+    }));
+
+  return platos;
+};

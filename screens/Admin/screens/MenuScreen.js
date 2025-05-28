@@ -33,17 +33,16 @@ export default function MenuScreen() {
   const [editingId, setEditingId] = useState(null);
   const [newNombre, setNewNombre] = useState('');
   const [newPrecio, setNewPrecio] = useState('');
+  const [newDescripcion, setNewDescripcion] = useState('');
   const [selectedIngredientes, setSelectedIngredientes] = useState([]);
   const [newIngName, setNewIngName] = useState('');
   const [newIngStock, setNewIngStock] = useState('');
   const [deletedIds, setDeletedIds] = useState([]);
 
-  // Sólo mostramos los platos que estén activos y no hayan sido "ocultados"
   const visibleProductos = productos.filter(
     p => p.activo && !deletedIds.includes(p.id)
   );
 
-  // Ocultar plato en la UI sin tocar la base de datos
   const confirmDelete = id =>
     Alert.alert('Confirmar ocultación', '¿Ocultar este platillo de la vista?', [
       { text: 'Cancelar', style: 'cancel' },
@@ -54,11 +53,11 @@ export default function MenuScreen() {
       },
     ]);
 
-  // Precargar datos para edición
   const handleEdit = async item => {
     setEditingId(item.id);
     setNewNombre(item.nombre);
     setNewPrecio(item.precio.toString());
+    setNewDescripcion(item.descripcion || '');
     const { data: rels } = await obtenerRelaciones(item.id);
     setSelectedIngredientes(
       ingredientes
@@ -72,7 +71,6 @@ export default function MenuScreen() {
     setShowForm(true);
   };
 
-  // Cambiar cantidad de ingrediente en el formulario
   const handleCantidadChange = (id, cantidad) =>
     setSelectedIngredientes(prev => {
       if (cantidad <= 0) return prev.filter(i => i.id !== id);
@@ -83,7 +81,6 @@ export default function MenuScreen() {
       return [...prev, { id, cantidad }];
     });
 
-  // Guardar o actualizar platillo
   const handleSubmitPlatillo = async () => {
     if (!newNombre || !newPrecio || selectedIngredientes.length === 0) {
       return Alert.alert('Error', 'Completa todos los campos');
@@ -91,6 +88,7 @@ export default function MenuScreen() {
     const payload = {
       nombre: newNombre,
       precio: newPrecio,
+      descripcion: newDescripcion,
       ingredientesSeleccionados: selectedIngredientes,
     };
     if (editingId) {
@@ -98,15 +96,14 @@ export default function MenuScreen() {
     } else {
       await crearProducto(payload);
     }
-    // Reset form
     setShowForm(false);
     setEditingId(null);
     setNewNombre('');
     setNewPrecio('');
+    setNewDescripcion('');
     setSelectedIngredientes([]);
   };
 
-  // Guardar nuevo ingrediente
   const handleSubmitIngrediente = async () => {
     if (!newIngName || !newIngStock) {
       return Alert.alert('Error', 'Completa nombre y stock');
@@ -117,7 +114,6 @@ export default function MenuScreen() {
     setNewIngStock('');
   };
 
-  // Formulario para agregar ingrediente
   const renderIngredienteForm = () => (
     <View style={styles.formContainer}>
       <TextInput
@@ -142,7 +138,6 @@ export default function MenuScreen() {
     </View>
   );
 
-  // Formulario para crear/editar platillo
   const renderFormPlatillo = () => (
     <View style={styles.formContainer}>
       <TextInput
@@ -156,6 +151,12 @@ export default function MenuScreen() {
         value={newPrecio}
         onChangeText={setNewPrecio}
         keyboardType="numeric"
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Descripción"
+        value={newDescripcion}
+        onChangeText={setNewDescripcion}
         style={styles.input}
       />
       <Text style={styles.label}>Ingredientes:</Text>
@@ -192,41 +193,43 @@ export default function MenuScreen() {
     </View>
   );
 
-  // Card de cada platillo
   const renderItem = ({ item }) => (
-    <Pressable style={({ hovered }) => [styles.card, hovered && styles.cardHover]}>
-      <View style={styles.cardHeader}>
-        <View>
-          <Text style={styles.nombreProducto}>{item.nombre}</Text>
-          <View style={styles.filaPrecio}>
-            <Text style={styles.label}>Precio:</Text>
-            <Text style={styles.precioTexto}>
-              {item.precio.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
-            </Text>
-          </View>
-          <View style={styles.filaActivo}>
-            <Text style={styles.labelActivo}>Activo:</Text>
-            <Switch value={item.activo} onValueChange={val => toggleActivo(item.id, val)} />
-          </View>
+  <Pressable style={({ hovered }) => [styles.card, hovered && styles.cardHover]}>
+    <View style={styles.cardHeader}>
+      <View>
+        <Text style={styles.nombreProducto}>{item.nombre}</Text>
+        {item.descripcion?.trim() !== '' && (
+          <Text style={styles.descripcionTexto}>Descripción: {item.descripcion}</Text>
+        )}
+        <View style={styles.filaPrecio}>
+          <Text style={styles.label}>Precio:</Text>
+          <Text style={styles.precioTexto}>
+            {item.precio.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
+          </Text>
         </View>
-        <View style={styles.actionRow}>
-          <Pressable
-            style={({ hovered }) => [styles.actionBtn, hovered && styles.actionBtnHover]}
-            onPress={() => handleEdit(item)}
-          >
-            <Text style={styles.actionText}>EDITAR</Text>
-          </Pressable>
+        <View style={styles.filaActivo}>
+          <Text style={styles.labelActivo}>Activo:</Text>
+          <Switch value={item.activo} onValueChange={val => toggleActivo(item.id, val)} />
         </View>
       </View>
-      {faltantes[item.id]?.length > 0 && (
-        <View style={styles.ingredientsContainer}>
-          {faltantes[item.id].map((ing, idx) => (
-            <Text key={idx} style={styles.ingredientLine}>● {ing}</Text>
-          ))}
-        </View>
-      )}
-    </Pressable>
-  );
+      <View style={styles.actionRow}>
+        <Pressable
+          style={({ hovered }) => [styles.actionBtn, hovered && styles.actionBtnHover]}
+          onPress={() => handleEdit(item)}
+        >
+          <Text style={styles.actionText}>EDITAR</Text>
+        </Pressable>
+      </View>
+    </View>
+    {faltantes[item.id]?.length > 0 && (
+      <View style={styles.ingredientsContainer}>
+        {faltantes[item.id].map((ing, idx) => (
+          <Text key={idx} style={styles.ingredientLine}>● {ing}</Text>
+        ))}
+      </View>
+    )}
+  </Pressable>
+);
 
   return (
     <View style={styles.wrapper}>

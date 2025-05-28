@@ -160,6 +160,11 @@ export default function PedidoScreen({ usuario, navigation }) {
                 onPress={() => agregarProducto(item)}
               >
                 <Text style={styles.productName}>{item.nombre}</Text>
+                {item.descripcion?.trim() !== '' && (
+                  <Text style={styles.productDescription}>
+                    Descripción: {item.descripcion}
+                  </Text>
+                )}
                 <Text style={styles.productPrice}>
                   {item.precio.toLocaleString('es-CO', {
                     style: 'currency',

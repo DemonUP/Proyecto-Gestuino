@@ -84,7 +84,7 @@ export function useMenuController() {
   }
 
   /** Crea un nuevo platillo y sus relaciones */
-async function crearProducto({ nombre, precio, ingredientesSeleccionados }) {
+async function crearProducto({ nombre, precio, descripcion, ingredientesSeleccionados }) {
   const precioNumerico = parseFloat(precio);
   if (isNaN(precioNumerico) || precioNumerico < 0) {
     console.error('❌ Precio inválido:', precio);
@@ -93,7 +93,7 @@ async function crearProducto({ nombre, precio, ingredientesSeleccionados }) {
 
   const { data: pd, error: e1 } = await supabase
     .from('productos')
-    .insert([{ nombre, precio: precioNumerico, activo: true }])
+    .insert([{ nombre, precio: precioNumerico, descripcion, activo: true }])
     .select();
 
   if (e1) {
