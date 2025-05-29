@@ -81,28 +81,42 @@ export default function MenuScreen() {
       return [...prev, { id, cantidad }];
     });
 
+    
   const handleSubmitPlatillo = async () => {
-    if (!newNombre || !newPrecio || selectedIngredientes.length === 0) {
-      return Alert.alert('Error', 'Completa todos los campos');
-    }
-    const payload = {
-      nombre: newNombre,
-      precio: newPrecio,
-      descripcion: newDescripcion,
-      ingredientesSeleccionados: selectedIngredientes,
-    };
-    if (editingId) {
-      await editarProducto({ id: editingId, ...payload });
-    } else {
-      await crearProducto(payload);
-    }
-    setShowForm(false);
-    setEditingId(null);
-    setNewNombre('');
-    setNewPrecio('');
-    setNewDescripcion('');
-    setSelectedIngredientes([]);
+  if (!newNombre || !newPrecio || selectedIngredientes.length === 0) {
+    return Alert.alert('Error', 'Completa todos los campos');
+  }
+
+  const parsedPrecio = parseFloat(newPrecio);
+  if (isNaN(parsedPrecio) || parsedPrecio <= 0) {
+    return Alert.alert('Error', 'El precio debe ser un número mayor a cero');
+  }
+
+  const payload = {
+    nombre: newNombre,
+    precio: parsedPrecio,
+    descripcion: newDescripcion,
+    ingredientesSeleccionados: selectedIngredientes,
   };
+
+  let exito;
+  if (editingId) {
+    exito = await editarProducto({ id: editingId, ...payload });
+  } else {
+    exito = await crearProducto(payload);
+  }
+
+  if (!exito) return;
+
+  setShowForm(false);
+  setEditingId(null);
+  setNewNombre('');
+  setNewPrecio('');
+  setNewDescripcion('');
+  setSelectedIngredientes([]);
+};
+
+
 
   const handleSubmitIngrediente = async () => {
     if (!newIngName || !newIngStock) {

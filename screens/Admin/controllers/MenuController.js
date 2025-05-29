@@ -157,33 +157,42 @@ async function crearProducto({ nombre, precio, descripcion, ingredientesSeleccio
    * Edita un platillo existente y reemplaza sus relaciones.
    */
   async function editarProducto({ id, nombre, precio, ingredientesSeleccionados }) {
-    const { error: e1 } = await supabase
-      .from('productos')
-      .update({ nombre, precio: parseFloat(precio) })
-      .eq('id', id);
-    if (e1) {
-      console.error('Error editando producto:', e1);
-      return false;
-    }
-    // elimina relaciones anteriores
-    await supabase
-      .from('productos_ingredientes')
-      .delete()
-      .eq('producto_id', id);
-    // inserta nuevas
-    const relacion = ingredientesSeleccionados.map(i => ({
-      producto_id: id,
-      ingrediente_id: i.id,
-      cantidad: i.cantidad,
-    }));
-    const { error: e2 } = await supabase
-      .from('productos_ingredientes')
-      .insert(relacion);
-    if (e2) console.error('Error actualizando relaciones:', e2);
-    // refresca UI
-    await cargarProductos();
-    return true;
+  const precioNumerico = parseFloat(precio);
+  if (isNaN(precioNumerico) || precioNumerico <= 0) {
+    console.error('❌ Precio inválido al editar producto:', precio);
+    return false;
   }
+
+  const { error: e1 } = await supabase
+    .from('productos')
+    .update({ nombre, precio: precioNumerico })
+    .eq('id', id);
+  if (e1) {
+    console.error('Error editando producto:', e1);
+    return false;
+  }
+
+  await supabase
+    .from('productos_ingredientes')
+    .delete()
+    .eq('producto_id', id);
+
+  const relacion = ingredientesSeleccionados.map(i => ({
+    producto_id: id,
+    ingrediente_id: i.id,
+    cantidad: i.cantidad,
+  }));
+
+  const { error: e2 } = await supabase
+    .from('productos_ingredientes')
+    .insert(relacion);
+  if (e2) console.error('Error actualizando relaciones:', e2);
+
+  await cargarProductos();
+  return true;
+}
+
+
 
     /**
    * Elimina un platillo, sus relaciones y opcionalmente ingredientes,
