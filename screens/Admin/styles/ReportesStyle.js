@@ -182,4 +182,74 @@ export default StyleSheet.create({
     color: '#FF6B35',
     marginTop: 4,
   },
+
+  filtrosContainer: {
+  backgroundColor: '#fff',
+  padding: 16,
+  marginVertical: 10,
+  borderRadius: 8,
+  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+  zIndex: 9999,
+  position: 'relative',
+},
+label: {
+  fontWeight: 'bold',
+  marginTop: 10,
+  marginBottom: 4,
+},
+botonLimpiar: {
+  marginTop: 12,
+  backgroundColor: '#ccc',
+  padding: 10,
+  borderRadius: 6,
+  alignItems: 'center',
+},
+textoBotonLimpiar: {
+  color: '#333',
+  fontWeight: 'bold',
+},
+filtrosContainer: {
+  backgroundColor: '#fffdfc',
+  padding: 20,
+  marginBottom: 20,
+  borderRadius: 12,
+  borderColor: '#f5d6cb',
+  borderWidth: 1,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 4,
+  zIndex: 1000,
+  position: 'relative',
+},
+
+label: {
+  fontWeight: 'bold',
+  marginBottom: 6,
+  color: '#b22222',
+},
+
+botonLimpiar: {
+  marginTop: 16,
+  backgroundColor: '#ffe0d1',
+  paddingVertical: 10,
+  paddingHorizontal: 14,
+  borderRadius: 8,
+  alignItems: 'center',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.08,
+  shadowRadius: 2,
+  elevation: 2,
+},
+
+textoBotonLimpiar: {
+  color: '#b22222',
+  fontWeight: 'bold',
+},
+
+
 });
+
+

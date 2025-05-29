@@ -71,17 +71,22 @@ export default function MenuScreen() {
     setShowForm(true);
   };
 
-  const handleCantidadChange = (id, cantidad) =>
+  const handleCantidadChange = (id, cantidad) => {
+    if (isNaN(cantidad) || cantidad <= 0) {
+      return setSelectedIngredientes(prev => prev.filter(i => i.id !== id));
+    }
+
     setSelectedIngredientes(prev => {
-      if (cantidad <= 0) return prev.filter(i => i.id !== id);
       const exists = prev.find(i => i.id === id);
       if (exists) {
         return prev.map(i => (i.id === id ? { ...i, cantidad } : i));
       }
       return [...prev, { id, cantidad }];
     });
+  };
 
-    
+
+
   const handleSubmitPlatillo = async () => {
   if (!newNombre || !newPrecio || selectedIngredientes.length === 0) {
     return Alert.alert('Error', 'Completa todos los campos');
@@ -183,12 +188,18 @@ export default function MenuScreen() {
             <TextInput
               placeholder="0"
               value={
-                selectedIngredientes.find(si => si.id === i.id)?.cantidad?.toString() ||
-                ''
+                selectedIngredientes.find(si => si.id === i.id)?.cantidad?.toString() || ''
               }
               keyboardType="numeric"
               style={styles.inputCantidad}
-              onChangeText={t => handleCantidadChange(i.id, parseInt(t) || 0)}
+              onChangeText={t => {
+                const val = parseInt(t);
+                if (!isNaN(val) && val >= 0) {
+                  handleCantidadChange(i.id, val);
+                } else if (t === '') {
+                  handleCantidadChange(i.id, 0);
+                }
+              }}
             />
           </View>
         ))}

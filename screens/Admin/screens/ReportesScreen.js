@@ -33,14 +33,12 @@ export default function ReportesScreen() {
     limpiarFiltros,
   } = useReportesController();
 
-  // Mes y año actuales
   const now = new Date();
   const monthName = now
     .toLocaleString('es-ES', { month: 'long' })
     .replace(/^./, s => s.toUpperCase());
   const year = now.getFullYear();
 
-  // Formateo de moneda con puntos de miles
   const formatCurrency = value =>
     new Intl.NumberFormat('es-CO', {
       minimumFractionDigits: 2,
@@ -83,9 +81,33 @@ export default function ReportesScreen() {
           </View>
         </View>
 
+        {/* ─── Filtros por fecha ─── */}
+        {mostrarFiltros && Platform.OS === 'web' && (
+          <View style={styles.filtrosContainer}>
+            <Text style={styles.label}>Fecha de inicio</Text>
+            <DatePicker
+              selected={fechaInicio}
+              onChange={setFechaInicio}
+              dateFormat="yyyy-MM-dd"
+              className="datepicker"
+              placeholderText="Selecciona una fecha"
+            />
+            <Text style={styles.label}>Fecha de fin</Text>
+            <DatePicker
+              selected={fechaFin}
+              onChange={setFechaFin}
+              dateFormat="yyyy-MM-dd"
+              className="datepicker"
+              placeholderText="Selecciona una fecha"
+            />
+            <TouchableOpacity onPress={limpiarFiltros} style={styles.botonLimpiar}>
+              <Text style={styles.textoBotonLimpiar}>Limpiar filtros</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* ─── Tarjetas destacadas ─── */}
         <View style={styles.headerRow}>
-          {/* Total General */}
           <View style={styles.highlightCard}>
             <View style={styles.highlightHeader}>
               <Text style={styles.titulo}>TOTAL GENERAL</Text>
@@ -98,7 +120,6 @@ export default function ReportesScreen() {
             </Text>
           </View>
 
-          {/* IVA Cobrado */}
           <View style={styles.highlightCard}>
             <View style={styles.highlightHeader}>
               <Text style={styles.titulo}>IVA COBRADO</Text>
@@ -114,16 +135,11 @@ export default function ReportesScreen() {
             </Text>
           </View>
 
-          {/* Propina Cobrada */}
           <View style={styles.highlightCard}>
             <View style={styles.highlightHeader}>
               <Text style={styles.titulo}>PROPINA COBRADA</Text>
               <View style={styles.highlightIconContainer}>
-                <Ionicons
-                  name="stats-chart-outline"
-                  size={20}
-                  color="#FF6B35"
-                />
+                <Ionicons name="stats-chart-outline" size={20} color="#FF6B35" />
               </View>
             </View>
             <Text style={styles.highlightText}>
@@ -132,14 +148,11 @@ export default function ReportesScreen() {
           </View>
         </View>
 
-
         {/* ─── Desglose por mesa ─── */}
         {Object.entries(ventasPorMesa).map(([mesaId, grupo]) => (
           <View key={mesaId}>
             <View style={styles.mesaRow}>
-              <View
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
-              >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Text style={styles.mesaBadge}>{grupo.nombreMesa}</Text>
                 <Text style={{ fontWeight: '600', color: '#333' }}>
                   Total: ${formatCurrency(grupo.totalMesa)}
@@ -166,8 +179,7 @@ export default function ReportesScreen() {
                   </Text>
                   <Text style={styles.ventaTexto}>Fecha: {venta.fecha}</Text>
                   <Text style={styles.ventaTotal}>
-                    Total: $
-                    {formatCurrency(venta.cantidad * venta.precio)}
+                    Total: ${formatCurrency(venta.cantidad * venta.precio)}
                   </Text>
                 </View>
               ))}

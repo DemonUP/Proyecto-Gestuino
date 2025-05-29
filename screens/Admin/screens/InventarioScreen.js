@@ -109,10 +109,15 @@ export default function InventarioScreen() {
       <TextInput
         placeholder="Stock inicial"
         value={newStock}
-        onChangeText={setNewStock}
+        onChangeText={text => {
+          const num = parseInt(text);
+          if (!isNaN(num) && num >= 0) setNewStock(num.toString());
+          else if (text === '') setNewStock('');
+        }}
         keyboardType="numeric"
         style={styles.input}
       />
+
       <TouchableOpacity style={styles.primaryBtn} onPress={handleCreateIngrediente}>
         <Text style={styles.primaryBtnText}>Guardar Ingrediente</Text>
       </TouchableOpacity>
