@@ -1,3 +1,5 @@
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 import React, { useState } from 'react';
 import {
   View,
@@ -15,7 +17,7 @@ import AdminSidebar from '../../../components/AdminSidebar';
 import { usePedidoController } from '../controllers/pedidoController';
 import styles from '../styles/pedidoStyles';
 
-export default function PedidoScreen({ usuario, navigation }) {
+export default function PedidoScreen({ route, usuario, navigation }) {
   const isMobile = Dimensions.get('window').width < 600;
 
   const {
@@ -37,6 +39,16 @@ export default function PedidoScreen({ usuario, navigation }) {
     actualizarEstadoMesa,
     enviarPedido,
   } = usePedidoController(navigation);
+
+
+  //Cuando entro a la vista, si viene una mesa por route.params, la aplico
+  useFocusEffect(
+    useCallback(() => {
+      if (route.params?.mesa?.id) {
+        setMesaSeleccionada(route.params.mesa.id);
+      }
+    }, [route.params])
+  );
 
   const [cantidadesEliminar, setCantidadesEliminar] = useState({});
 

@@ -8,6 +8,7 @@ export function usePedidoController(navigation) {
   const [mesas, setMesas] = useState([]);
   const [mesaSeleccionada, setMesaSeleccionada] = useState(null);
   const [estadoMesa, setEstadoMesa] = useState('disponible');
+  const [mesaActual, setMesaActual] = useState(null);
   const [usuario, setUsuario] = useState(null);
 
   const [productos, setProductos] = useState([]);
@@ -69,14 +70,19 @@ export function usePedidoController(navigation) {
   useEffect(() => {
     if (mesaSeleccionada) {
       const mesa = mesas.find((m) => m.id === mesaSeleccionada);
+      setMesaActual(mesa);
       setEstadoMesa(mesa?.estado || 'disponible');
       setCantidadPersonas(mesa?.cantidad_personas?.toString() || '');
       setDescripcionMesa(mesa?.descripcion || '');
       obtenerPedidosMesa(mesaSeleccionada);
     } else {
+      setMesaActual(null);
+      setCantidadPersonas('');
+      setDescripcionMesa('');
       setPedidosExistentes([]);
     }
   }, [mesaSeleccionada]);
+
 
   const obtenerMesas = async () => {
     const { data, error } = await supabase.from('mesas').select('*');
@@ -94,15 +100,39 @@ export function usePedidoController(navigation) {
   };
 
   const obtenerPedidosMesa = async (idMesa) => {
-    const { data, error } = await supabase
+    // 🚨 Obtenemos la mesa directamente desde Supabase para asegurar el dato actualizado
+    const { data: mesaData, error: mesaError } = await supabase
+      .from('mesas')
+      .select('ocupada_desde')
+      .eq('id', idMesa)
+      .single();
+
+    if (mesaError) {
+      console.error('Error obteniendo mesa:', mesaError);
+      return;
+    }
+
+    const ocupadaDesde = mesaData?.ocupada_desde;
+
+    let query = supabase
       .from('pedidos')
-      .select('id, cantidad, productos:producto_id(nombre, precio)')
+      .select('id, cantidad, creado_en, productos:producto_id(nombre, precio)')
       .eq('mesa_id', idMesa)
       .neq('estado', 'facturado');
 
+    if (ocupadaDesde) {
+      query = query.gte('creado_en', ocupadaDesde);
+    }
+
+    const { data, error } = await query;
+
     if (!error) setPedidosExistentes(data);
-    else console.error('Error al obtener pedidos:', error);
+    else {
+      console.error('Error al obtener pedidos:', error);
+      setPedidosExistentes([]);
+    }
   };
+
 
   const eliminarPedidoExistente = async (idPedido) => {
     const { error } = await supabase.from('pedidos').delete().eq('id', idPedido);
@@ -135,43 +165,42 @@ export function usePedidoController(navigation) {
     setPedido([...pedido, producto]);
   };
 
-  const actualizarEstadoMesa = async () => {
-    if (!mesaSeleccionada) {
-      mostrarToast('Debes seleccionar una mesa.');
-      return;
-    }
+const actualizarEstadoMesa = async () => {
+  if (!mesaSeleccionada) {
+    mostrarToast('Debes seleccionar una mesa.');
+    return false;
+  }
 
-    const ahora = new Date().toISOString();
-    const nuevoEstado = estadoMesa;
-    const payload = {
-      estado: nuevoEstado,
-    };
+  const ahora = new Date().toISOString();
+  const nuevoEstado = estadoMesa;
 
-    if (nuevoEstado === 'ocupada') {
-      payload.ocupada_desde = ahora; // ✅ Marca el inicio visual
-    }
+  const personas = parseInt(cantidadPersonas);
+  const cantidadFinal = !isNaN(personas) ? personas : 1;
 
-    if (nuevoEstado === 'disponible') {
-      payload.ocupada_desde = null; // ✅ Reinicia el punto de corte
-    }
-
-    const { data, error } = await supabase
-      .from('mesas')
-      .update(payload)
-      .eq('id', mesaSeleccionada)
-      .select();
-
-    if (error) {
-      console.error('❌ Error actualizando estado:', error);
-      Alert.alert('Error', 'No se pudo actualizar el estado de la mesa.');
-    } else {
-      mostrarToast(`✅ Estado actualizado a "${nuevoEstado}"`);
-      obtenerMesas();
-    }
+  const payload = {
+    estado: nuevoEstado,
+    cantidad_personas: cantidadFinal,
+    descripcion: descripcionMesa || null,
+    usuario_id: usuario?.id || null,
+    ocupada_desde: nuevoEstado === 'ocupada' ? ahora : null,
   };
 
+  const { data, error } = await supabase
+    .from('mesas')
+    .update(payload)
+    .eq('id', mesaSeleccionada)
+    .select();
 
-
+  if (error) {
+    console.error('❌ Error actualizando estado:', error);
+    Alert.alert('Error', 'No se pudo actualizar el estado de la mesa.');
+    return false;
+  } else {
+    mostrarToast(`✅ Estado actualizado a "${nuevoEstado}"`);
+    obtenerMesas(); // actualiza visual
+    return true;
+  }
+};
 
 
   const enviarPedido = async () => {
@@ -258,6 +287,7 @@ export function usePedidoController(navigation) {
     setMesaSeleccionada,
     estadoMesa,
     setEstadoMesa,
+    mesaActual,
     productos,
     pedido,
     pedidosExistentes,

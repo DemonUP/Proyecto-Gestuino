@@ -99,22 +99,30 @@ export default function MeseroHome({ navigation, onLogout }) {
     }
 
     const mesasConUltimoPedido = data
-      .filter(m => m.estado === 'ocupada') // ✅ Filtramos en JS
-      .map(m => {
-        const pedidosValidos = (m.pedidos || []).filter(p =>
-          m.ocupada_desde ? new Date(p.creado_en) >= new Date(m.ocupada_desde) : false
-        );
+      .filter((m) => m.estado === 'ocupada')
+      .map((m) => {
+        const ocupadaDesde = m.ocupada_desde ? new Date(m.ocupada_desde) : null;
 
-        const ultimoPedido = pedidosValidos.sort(
-          (a, b) => new Date(b.creado_en) - new Date(a.creado_en)
-        )[0];
+        const pedidosValidos = (m.pedidos || []).filter((p) => {
+          return ocupadaDesde ? new Date(p.creado_en) >= ocupadaDesde : true;
+        });
 
-        return { ...m, ultimoPedido };
+        const ultimoPedido =
+          pedidosValidos.length > 0
+            ? pedidosValidos.sort(
+                (a, b) => new Date(b.creado_en) - new Date(a.creado_en)
+              )[0]
+            : null;
+
+          return {
+            ...m,
+            ultimoPedido: pedidosValidos.length > 0 ? pedidosValidos[0] : null,
+          };
+
       });
 
-    setMesas(mesasConUltimoPedido);
-  };
-
+      setMesas(mesasConUltimoPedido);
+     }; 
 
 
   function StatCard({ stat }) {
