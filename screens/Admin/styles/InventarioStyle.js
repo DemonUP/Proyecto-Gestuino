@@ -27,6 +27,48 @@ export default StyleSheet.create({
   wrapperMobile: {
     flexDirection: 'column',
   },
+  menuButton: {
+    position: 'absolute',
+    left: 8,
+    top: 10,
+    zIndex: 20,
+    backgroundColor: '#fff',
+    padding: 8,
+    borderRadius: 24,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+  },
+  sidebarOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.16)',
+    zIndex: 100,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+  },
+  sidebarDrawer: {
+    width: 260,
+    height: '100%',
+    backgroundColor: '#fff',
+    paddingTop: 18,
+    paddingHorizontal: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 4, height: 0 },
+    shadowOpacity: 0.17,
+    shadowRadius: 16,
+    elevation: 20,
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 16,
+    padding: 4,
+  },
   mainContent: {
     flex: 1,
     marginLeft: isMobile ? 0 : 40,
@@ -40,6 +82,9 @@ export default StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
+    width: '100%',
+    maxWidth: 1100, // O el que mejor te quede, 900-1200px es estándar
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -157,17 +202,16 @@ export default StyleSheet.create({
     color: '#6b7280',
     marginTop: 20,
   },
+ 
   item: {
     backgroundColor: '#ffffff',
     padding: 16,
     marginBottom: 16,
-    marginHorizontal: 8,
+    width: '48%',
+    marginHorizontal: 0,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#e5e7eb',
-    flex: 1,
-    minWidth: 180,
-    maxWidth: 400,
   },
   itemMobile: {
     minWidth: '100%',
@@ -230,7 +274,7 @@ export default StyleSheet.create({
     fontWeight: '500',
   },
   actionBtnTextHover: {
-    color: '#ffffff',
+    color: '#FF6B35',
   },
   footer: {
     alignItems: 'center',

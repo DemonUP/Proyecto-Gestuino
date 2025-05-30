@@ -1,293 +1,143 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
-  FlatList,
   TextInput,
-  ScrollView,
+  TouchableOpacity,
   Alert,
+  ActivityIndicator,
+  ScrollView,
   Pressable,
-  Switch,
   Dimensions,
 } from 'react-native';
-import { useMenuController } from '../controllers/MenuController';
+import { Feather } from '@expo/vector-icons';
 import AdminSidebar from '../../../components/AdminSidebar';
-import styles from '../styles/MenuStyles';
+import {
+  obtenerConfiguraciones,
+  actualizarConfiguracion,
+} from '../controllers/ConfiguracionesController';
+import styles from '../styles/ConfiguracionesStyles';
 
-const isMobile = Dimensions.get('window').width < 600;
+export default function ConfiguracionScreen() {
+  const [iva, setIva] = useState('');
+  const [propina, setPropina] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [focusField, setFocusField] = useState(null);
 
-export default function MenuScreen() {
-  const {
-    productos,
-    faltantes,
-    ingredientes,
-    crearProducto,
-    crearIngrediente,
-    editarProducto,
-    toggleActivo,
-    obtenerRelaciones,
-  } = useMenuController();
+  useEffect(() => {
+    (async () => {
+      const config = await obtenerConfiguraciones();
+      setIva(config.iva.toString());
+      setPropina(config.propina.toString());
+      setLoading(false);
+    })();
+  }, []);
 
-  const [showForm, setShowForm] = useState(false);
-  const [showIngForm, setShowIngForm] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [newNombre, setNewNombre] = useState('');
-  const [newPrecio, setNewPrecio] = useState('');
-  const [newDescripcion, setNewDescripcion] = useState('');
-  const [selectedIngredientes, setSelectedIngredientes] = useState([]);
-  const [newIngName, setNewIngName] = useState('');
-  const [newIngStock, setNewIngStock] = useState('');
-  const [deletedIds, setDeletedIds] = useState([]);
+  const guardar = async () => {
+    const ok1 = await actualizarConfiguracion('iva', parseFloat(iva));
+    const ok2 = await actualizarConfiguracion('propina', parseFloat(propina));
+    if (ok1 && ok2) {
+      Alert.alert('Éxito', 'Configuraciones guardadas');
+    } else {
+      Alert.alert('Error', 'Hubo un problema al guardar');
+    }
+  };
 
-  const visibleProductos = productos.filter(
-    p => p.activo && !deletedIds.includes(p.id)
-  );
-
-  const confirmDelete = id =>
-    Alert.alert('Confirmar ocultación', '¿Ocultar este platillo de la vista?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Ocultar',
-        style: 'destructive',
-        onPress: () => setDeletedIds(prev => [...prev, id]),
-      },
-    ]);
-
-  const handleEdit = async item => {
-    setEditingId(item.id);
-    setNewNombre(item.nombre);
-    setNewPrecio(item.precio.toString());
-    setNewDescripcion(item.descripcion || '');
-    const { data: rels } = await obtenerRelaciones(item.id);
-    setSelectedIngredientes(
-      ingredientes
-        .map(i => {
-          const rel = rels.find(r => r.ingrediente_id === i.id);
-          return rel ? { id: i.id, cantidad: rel.cantidad } : null;
-        })
-        .filter(x => x)
+  if (loading) {
+    return (
+      <View style={styles.wrapper}>
+        <AdminSidebar /> {/* Sidebar responsivo SIEMPRE */}
+        <View style={styles.mainContent}>
+          <ActivityIndicator size="large" color="#FF6B35" />
+        </View>
+      </View>
     );
-    setShowIngForm(false);
-    setShowForm(true);
-  };
-
-  const handleCantidadChange = (id, cantidad) => {
-    if (isNaN(cantidad) || cantidad <= 0) {
-      return setSelectedIngredientes(prev => prev.filter(i => i.id !== id));
-    }
-
-    setSelectedIngredientes(prev => {
-      const exists = prev.find(i => i.id === id);
-      if (exists) {
-        return prev.map(i => (i.id === id ? { ...i, cantidad } : i));
-      }
-      return [...prev, { id, cantidad }];
-    });
-  };
-
-
-
-  const handleSubmitPlatillo = async () => {
-  if (!newNombre || !newPrecio || selectedIngredientes.length === 0) {
-    return Alert.alert('Error', 'Completa todos los campos');
   }
-
-  const parsedPrecio = parseFloat(newPrecio);
-  if (isNaN(parsedPrecio) || parsedPrecio <= 0) {
-    return Alert.alert('Error', 'El precio debe ser un número mayor a cero');
-  }
-
-  const payload = {
-    nombre: newNombre,
-    precio: parsedPrecio,
-    descripcion: newDescripcion,
-    ingredientesSeleccionados: selectedIngredientes,
-  };
-
-  let exito;
-  if (editingId) {
-    exito = await editarProducto({ id: editingId, ...payload });
-  } else {
-    exito = await crearProducto(payload);
-  }
-
-  if (!exito) return;
-
-  setShowForm(false);
-  setEditingId(null);
-  setNewNombre('');
-  setNewPrecio('');
-  setNewDescripcion('');
-  setSelectedIngredientes([]);
-};
-
-
-
-  const handleSubmitIngrediente = async () => {
-    if (!newIngName || !newIngStock) {
-      return Alert.alert('Error', 'Completa nombre y stock');
-    }
-    await crearIngrediente({ nombre: newIngName, stock: newIngStock });
-    setShowIngForm(false);
-    setNewIngName('');
-    setNewIngStock('');
-  };
-
-  const renderIngredienteForm = () => (
-    <View style={styles.formContainer}>
-      <TextInput
-        placeholder="Nombre del ingrediente"
-        value={newIngName}
-        onChangeText={setNewIngName}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Stock inicial"
-        value={newIngStock}
-        onChangeText={setNewIngStock}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-      <Pressable style={styles.primaryBtn} onPress={handleSubmitIngrediente}>
-        <Text style={styles.primaryBtnText}>Guardar Ingrediente</Text>
-      </Pressable>
-      <Pressable style={styles.dangerBtn} onPress={() => setShowIngForm(false)}>
-        <Text style={styles.dangerBtnText}>Cancelar</Text>
-      </Pressable>
-    </View>
-  );
-
-  const renderFormPlatillo = () => (
-    <View style={styles.formContainer}>
-      <TextInput
-        placeholder="Nombre del platillo"
-        value={newNombre}
-        onChangeText={setNewNombre}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Precio"
-        value={newPrecio}
-        onChangeText={setNewPrecio}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Descripción"
-        value={newDescripcion}
-        onChangeText={setNewDescripcion}
-        style={styles.input}
-      />
-      <Text style={styles.label}>Ingredientes:</Text>
-      <ScrollView style={styles.scrollIngredientes}>
-        {ingredientes.map(i => (
-          <View key={i.id} style={styles.filaIngrediente}>
-            <Text style={styles.ingredientName}>
-              {i.nombre} (Stock: {i.stock})
-            </Text>
-            <TextInput
-              placeholder="0"
-              value={
-                selectedIngredientes.find(si => si.id === i.id)?.cantidad?.toString() || ''
-              }
-              keyboardType="numeric"
-              style={styles.inputCantidad}
-              onChangeText={t => {
-                const val = parseInt(t);
-                if (!isNaN(val) && val >= 0) {
-                  handleCantidadChange(i.id, val);
-                } else if (t === '') {
-                  handleCantidadChange(i.id, 0);
-                }
-              }}
-            />
-          </View>
-        ))}
-      </ScrollView>
-      <Pressable style={styles.primaryBtn} onPress={() => setShowIngForm(true)}>
-        <Text style={styles.primaryBtnText}>+ Añadir Ingrediente</Text>
-      </Pressable>
-      <Pressable style={styles.primaryBtn} onPress={handleSubmitPlatillo}>
-        <Text style={styles.primaryBtnText}>
-          {editingId ? 'Guardar Cambios' : 'Guardar Platillo'}
-        </Text>
-      </Pressable>
-      <Pressable style={styles.dangerBtn} onPress={() => setShowForm(false)}>
-        <Text style={styles.dangerBtnText}>Cancelar</Text>
-      </Pressable>
-    </View>
-  );
-
-  const renderItem = ({ item }) => (
-  <Pressable style={({ hovered }) => [styles.card, hovered && styles.cardHover]}>
-    <View style={styles.cardHeader}>
-      <View>
-        <Text style={styles.nombreProducto}>{item.nombre}</Text>
-        {item.descripcion?.trim() !== '' && (
-          <Text style={styles.descripcionTexto}>Descripción: {item.descripcion}</Text>
-        )}
-        <View style={styles.filaPrecio}>
-          <Text style={styles.label}>Precio:</Text>
-          <Text style={styles.precioTexto}>
-            {item.precio.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
-          </Text>
-        </View>
-        <View style={styles.filaActivo}>
-          <Text style={styles.labelActivo}>Activo:</Text>
-          <Switch value={item.activo} onValueChange={val => toggleActivo(item.id, val)} />
-        </View>
-      </View>
-      <View style={styles.actionRow}>
-        <Pressable
-          style={({ hovered }) => [styles.actionBtn, hovered && styles.actionBtnHover]}
-          onPress={() => handleEdit(item)}
-        >
-          <Text style={styles.actionText}>EDITAR</Text>
-        </Pressable>
-      </View>
-    </View>
-    {faltantes[item.id]?.length > 0 && (
-      <View style={styles.ingredientsContainer}>
-        {faltantes[item.id].map((ing, idx) => (
-          <Text key={idx} style={styles.ingredientLine}>● {ing}</Text>
-        ))}
-      </View>
-    )}
-  </Pressable>
-);
 
   return (
     <View style={styles.wrapper}>
-      {!isMobile && <AdminSidebar />}
-      <ScrollView style={styles.mainContent} contentContainerStyle={styles.contentContainer}>
+      <AdminSidebar /> {/* Sidebar responsivo SIEMPRE */}
+      <ScrollView
+        style={styles.mainContent}
+        contentContainerStyle={styles.contentContainer}
+      >
+        {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.headerTitle}>Menú</Text>
-            <Text style={styles.headerSubtitle}>Menú del Restaurante</Text>
+          <View style={styles.headerIconContainer}>
+            <Feather name="settings" size={20} color="#fff" />
           </View>
-          {!showForm && (
-            <Pressable style={styles.newButton} onPress={() => setShowForm(true)}>
-              <Text style={styles.newButtonText}>+ Nuevo Plato</Text>
-            </Pressable>
-          )}
+          <View>
+            <Text style={styles.headerTitle}>
+              Configuraciones del Restaurante
+            </Text>
+            <Text style={styles.headerSubtitle}>
+              Parámetros operativos principales
+            </Text>
+          </View>
         </View>
 
-        {showIngForm
-          ? renderIngredienteForm()
-          : showForm
-            ? renderFormPlatillo()
-            : (
-              <FlatList
-                data={visibleProductos}
-                keyExtractor={item => item.id.toString()}
-                renderItem={renderItem}
-                numColumns={isMobile ? 1 : 2}
-                columnWrapperStyle={!isMobile && { justifyContent: 'space-between' }}
-                ListEmptyComponent={
-                  <Text style={styles.emptyText}>No hay productos registrados.</Text>
-                }
+        {/* Card */}
+        <Pressable
+          style={({ hovered }) => [
+            styles.configCard,
+            hovered && styles.configCardHover,
+          ]}
+        >
+          {/* IVA */}
+          <View style={styles.field}>
+            <Text style={styles.label}>
+              IVA (%) <Text style={{ color: '#FF6B35' }}>*</Text>
+            </Text>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={[
+                  styles.configInput,
+                  focusField === 'iva' && styles.configInputFocus,
+                ]}
+                value={iva}
+                onChangeText={setIva}
+                keyboardType="numeric"
+                onFocus={() => setFocusField('iva')}
+                onBlur={() => setFocusField(null)}
+                placeholder="19"
               />
-            )}
+              <Text style={styles.percentIcon}>%</Text>
+            </View>
+          </View>
+
+          {/* Propina */}
+          <View style={styles.field}>
+            <Text style={styles.label}>
+              Propina (%) <Text style={{ color: '#FF6B35' }}>*</Text>
+            </Text>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={[
+                  styles.configInput,
+                  focusField === 'propina' && styles.configInputFocus,
+                ]}
+                value={propina}
+                onChangeText={setPropina}
+                keyboardType="numeric"
+                onFocus={() => setFocusField('propina')}
+                onBlur={() => setFocusField(null)}
+                placeholder="10"
+              />
+              <Text style={styles.percentIcon}>%</Text>
+            </View>
+          </View>
+
+          {/* Guardar */}
+          <Pressable
+            style={({ hovered }) => [
+              styles.saveBtn,
+              hovered && styles.saveBtnHover,
+            ]}
+            onPress={guardar}
+          >
+            <Text style={styles.saveBtnText}>Guardar Cambios</Text>
+          </Pressable>
+        </Pressable>
       </ScrollView>
     </View>
   );

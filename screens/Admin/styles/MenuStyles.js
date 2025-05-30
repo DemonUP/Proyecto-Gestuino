@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const isMobile = Dimensions.get('window').width < 600;
+const isMobile = Dimensions.get('window').width < 700;
 
 export default StyleSheet.create({
   wrapper: {
@@ -8,20 +8,33 @@ export default StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#f9fafb',
   },
+  wrapperMobile: {
+    flexDirection: 'column',
+  },
   mainContent: {
     flex: 1,
     marginLeft: isMobile ? 0 : 40,
     marginRight: isMobile ? 0 : 40,
     backgroundColor: '#fafafa',
   },
+  mainContentMobile: {
+    marginLeft: 0,
+    marginRight: 0,
+    padding: 8,
+  },
   contentContainer: {
-    padding: 16,
+    padding: isMobile ? 8 : 16,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
+  },
+  headerMobile: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 8,
   },
   headerTitle: {
     fontSize: 20,
@@ -39,6 +52,13 @@ export default StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: 'center',
+    alignSelf: 'flex-start',
+  },
+  newButtonMobile: {
+    width: '100%',
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    marginTop: 12,
   },
   newButtonText: {
     color: '#ffffff',
@@ -56,6 +76,9 @@ export default StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  formContainerMobile: {
+    padding: 8,
+  },
   input: {
     backgroundColor: '#ffffff',
     borderWidth: 1,
@@ -65,6 +88,10 @@ export default StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 12,
   },
+  inputMobile: {
+    paddingHorizontal: 8,
+    fontSize: 16,
+  },
   inputCantidad: {
     width: 60,
     borderWidth: 1,
@@ -72,6 +99,11 @@ export default StyleSheet.create({
     borderRadius: 6,
     padding: 6,
     marginLeft: 8,
+  },
+  inputCantidadMobile: {
+    width: '100%',
+    marginLeft: 0,
+    marginTop: 8,
   },
   label: {
     fontSize: 14,
@@ -104,6 +136,12 @@ export default StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
     marginBottom: 12,
+    alignSelf: 'flex-start',
+    width: 180,
+  },
+  primaryBtnMobile: {
+    width: '100%',
+    alignSelf: 'stretch',
   },
   primaryBtnText: {
     color: '#ffffff',
@@ -114,6 +152,12 @@ export default StyleSheet.create({
     padding: 12,
     borderRadius: 6,
     alignItems: 'center',
+    alignSelf: 'flex-start',
+    width: 120,
+  },
+  dangerBtnMobile: {
+    width: '100%',
+    alignSelf: 'stretch',
   },
   dangerBtnText: {
     color: '#ffffff',
@@ -149,10 +193,19 @@ export default StyleSheet.create({
     backgroundColor: '#ffffff',
     padding: 16,
     marginBottom: 16,
-    flexBasis: isMobile ? '100%' : '48%',
+    width: '48%',
+    marginHorizontal: 0,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#e5e7eb',
+    minWidth: 180,
+    maxWidth: 420,
+    flex: 1,
+  },
+  cardMobile: {
+    width: '100%',
+    minWidth: '100%',
+    marginHorizontal: 0,
   },
   cardHover: {
     transform: [{ translateY: -3 }],

@@ -18,8 +18,6 @@ import {
 } from '../controllers/ConfiguracionesController';
 import styles from '../styles/ConfiguracionesStyles';
 
-const isMobile = Dimensions.get('window').width < 600;
-
 export default function ConfiguracionScreen() {
   const [iva, setIva] = useState('');
   const [propina, setPropina] = useState('');
@@ -48,7 +46,7 @@ export default function ConfiguracionScreen() {
   if (loading) {
     return (
       <View style={styles.wrapper}>
-        {!isMobile && <AdminSidebar />}
+        <AdminSidebar /> {/* Sidebar responsivo SIEMPRE */}
         <View style={styles.mainContent}>
           <ActivityIndicator size="large" color="#FF6B35" />
         </View>
@@ -58,7 +56,7 @@ export default function ConfiguracionScreen() {
 
   return (
     <View style={styles.wrapper}>
-      {!isMobile && <AdminSidebar />}
+      <AdminSidebar /> {/* Sidebar responsivo SIEMPRE */}
       <ScrollView
         style={styles.mainContent}
         contentContainerStyle={styles.contentContainer}

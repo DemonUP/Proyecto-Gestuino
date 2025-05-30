@@ -101,22 +101,52 @@ export default function AdminHome({ usuario, navigation, onLogout }) {
       <View style={[styles.mainContent, isMobile && styles.mainContentMobile]}>
         <ScrollView contentContainerStyle={[styles.container, { padding: PADDING }]}>
           {/* Header */}
-          <View style={styles.header}>
-            <View>
-              <Text style={styles.title}>
-                ¡Bienvenido, <Text style={styles.highlight}>Administrador/a {usuario.nombre} {usuario.apellido}!</Text>
-              </Text>
-              <Text style={styles.status}>
-                Recuerda lo valioso que eres para nuestra empresa.
-              </Text>
+            <View style={[styles.header, isMobile && styles.headerMobile]}>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={[
+                    styles.title,
+                    isMobile && styles.titleMobile
+                  ]}
+                  numberOfLines={isMobile ? 2 : undefined}
+                  ellipsizeMode={isMobile ? "tail" : undefined}
+                >
+                  ¡Bienvenido,{' '}
+                  <Text style={styles.highlight}>
+                    Administrador/a {usuario.nombre} {usuario.apellido}!
+                  </Text>
+                </Text>
+                <Text style={[
+                  styles.status,
+                  isMobile && styles.statusMobile
+                ]}>
+                  Recuerda lo valioso que eres para nuestra empresa.
+                </Text>
+                {/* Solo en móvil: botón debajo */}
+                {isMobile && (
+                  <TouchableOpacity
+                    style={[styles.logoutButton, styles.logoutButtonMobile]}
+                    onPress={onLogout}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.logoutText}>Cerrar Sesión</Text>
+                    <Ionicons name="log-out-outline" size={20} color="#4B5563" />
+                  </TouchableOpacity>
+                )}
+              </View>
+              {/* Solo escritorio: botón a la derecha */}
+              {!isMobile && (
+                <TouchableOpacity
+                  style={styles.logoutButton}
+                  onPress={onLogout}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.logoutText}>Cerrar Sesión</Text>
+                  <Ionicons name="log-out-outline" size={20} color="#4B5563" />
+                </TouchableOpacity>
+              )}
             </View>
-            <View style={styles.headerActions}>
-              <TouchableOpacity style={styles.logoutButton} onPress={onLogout} activeOpacity={0.7}>
-                <Text style={styles.logoutText}>Cerrar Sesión</Text>
-                <Ionicons name="log-out-outline" size={20} color="#4B5563" />
-              </TouchableOpacity>
-            </View>
-          </View>
+
 
           {/* Métricas */}
           <View style={[styles.metricsGrid, { marginBottom: PADDING }]}>

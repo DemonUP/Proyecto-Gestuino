@@ -20,20 +20,25 @@ import styles, { webToastStyle } from '../styles/InventarioStyle';
 const MOBILE_BREAKPOINT = 700;
 
 export default function InventarioScreen() {
+  // Responsive
   const [layoutWidth, setLayoutWidth] = useState(Dimensions.get('window').width);
+  const isMobile = layoutWidth < MOBILE_BREAKPOINT;
+
+  useEffect(() => {
+    const onChange = ({ window }) => setLayoutWidth(window.width);
+    const sub = Dimensions.addEventListener('change', onChange);
+    return () => sub?.remove();
+  }, []);
+
+  // CRUD Ingredientes
   const [ingredientes, setIngredientes] = useState([]);
   const [cantidades, setCantidades] = useState({});
   const [showNewForm, setShowNewForm] = useState(false);
   const [newName, setNewName] = useState('');
   const [newStock, setNewStock] = useState('');
 
-  const isMobile = layoutWidth < MOBILE_BREAKPOINT;
-
   useEffect(() => {
     obtenerIngredientes();
-    const onChange = ({ window }) => setLayoutWidth(window.width);
-    const sub = Dimensions.addEventListener('change', onChange);
-    return () => sub?.remove();
   }, []);
 
   const toast = msg => {
@@ -177,7 +182,9 @@ export default function InventarioScreen() {
 
   return (
     <View style={[styles.wrapper, isMobile && styles.wrapperMobile]}>
-      {!isMobile && <AdminSidebar />}
+      {/* SOLO esto! AdminSidebar se encarga del Drawer y el botón hamburguesa */}
+      <AdminSidebar />
+
       <ScrollView style={[styles.mainContent, isMobile && styles.mainContentMobile]} contentContainerStyle={styles.contentContainer}>
         <View style={[styles.header, isMobile && styles.headerMobile]}>
           <View>
@@ -203,7 +210,7 @@ export default function InventarioScreen() {
           renderItem={renderItem}
           numColumns={isMobile ? 1 : 2}
           key={isMobile ? 'list-1col' : 'list-2col'}
-          columnWrapperStyle={!isMobile && { justifyContent: 'space-between' }}
+          columnWrapperStyle={!isMobile && { justifyContent: 'space-between', gap: 16 }}
           ListEmptyComponent={<Text style={styles.emptyText}>No hay ingredientes registrados.</Text>}
           contentContainerStyle={{ paddingBottom: 32 }}
         />

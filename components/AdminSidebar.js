@@ -1,6 +1,6 @@
 // AdminSidebar.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, Modal, Dimensions, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, Pressable, Modal, Dimensions, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import styles from './Styles/AdminSidebarStyles';
@@ -20,7 +20,7 @@ const meseroItems = [
 ];
 
 const SIDEBAR_WIDTH = 280;
-const MOBILE_BREAKPOINT = 700; // px, ajusta si quieres
+const MOBILE_BREAKPOINT = 700;
 
 export default function AdminSidebar({ navigation: navProp, activeRoute: activeRouteProp }) {
   const navigation = useNavigation() || navProp;
@@ -36,20 +36,23 @@ export default function AdminSidebar({ navigation: navProp, activeRoute: activeR
     return () => sub?.remove();
   }, []);
 
-  // Rol dinámico
+  // Detectamos rol según la ruta activa
   const activeRoute = activeRouteProp || route.name;
   const isMeseroRoute = meseroItems.some(item => item.route === activeRoute);
   const items = isMeseroRoute ? meseroItems : adminItems;
 
-  // Menu (drawer) content reutilizable
+  // Menú reusable para sidebar y Drawer
   const MenuContent = ({ closeDrawer }) => (
     <View style={[styles.sidebar, isMobile && styles.sidebarMobile]}>
       {/* Logo y título */}
       <View style={styles.logoContainer}>
-        <View style={styles.penguin}><View style={styles.penguinBelly}/><View style={styles.penguinBeak}/></View>
+        <View style={styles.penguin}>
+          <View style={styles.penguinBelly} />
+          <View style={styles.penguinBeak} />
+        </View>
         <Text style={styles.logoText}>Gestuino</Text>
       </View>
-      {/* Menú */}
+      {/* Menú de navegación */}
       {items.map(item => {
         const isActive = activeRoute === item.route;
         return (
@@ -72,33 +75,48 @@ export default function AdminSidebar({ navigation: navProp, activeRoute: activeR
   );
 
   if (!isMobile) {
-    // ESCRITORIO: sidebar fijo
+    // ESCRITORIO: Sidebar fijo
     return <MenuContent />;
   }
 
-  // MÓVIL: botón y Drawer modal
+  // MÓVIL: Botón hamburguesa y Drawer modal
   return (
     <>
-      <TouchableOpacity
-        style={styles.hamburgerButton}
-        onPress={() => setDrawerOpen(true)}
-        activeOpacity={0.7}
-      >
-        <Feather name="menu" size={28} color="#4B5563" />
-      </TouchableOpacity>
+      {/* Botón hamburguesa SOLO FUERA del Drawer */}
+      {!drawerOpen && (
+        <TouchableOpacity
+          style={styles.hamburgerButton}
+          onPress={() => setDrawerOpen(true)}
+          activeOpacity={0.7}
+        >
+          <Feather name="menu" size={28} color="#FF6B35" />
+        </TouchableOpacity>
+      )}
 
+      {/* Drawer modal para mobile */}
       <Modal
         visible={drawerOpen}
         animationType="slide"
         transparent
         onRequestClose={() => setDrawerOpen(false)}
       >
+        {/* Overlay para cerrar tocando fuera */}
         <TouchableOpacity
           style={styles.drawerOverlay}
           activeOpacity={1}
           onPress={() => setDrawerOpen(false)}
         />
+        {/* Drawer sidebar */}
         <View style={styles.drawer}>
+          {/* Botón cerrar arriba a la derecha */}
+          <TouchableOpacity
+            style={styles.drawerCloseButton}
+            onPress={() => setDrawerOpen(false)}
+            activeOpacity={0.7}
+          >
+            <Feather name="x" size={28} color="#FF6B35" />
+          </TouchableOpacity>
+          {/* Menú lateral */}
           <MenuContent closeDrawer={() => setDrawerOpen(false)} />
         </View>
       </Modal>
