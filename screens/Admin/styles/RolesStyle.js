@@ -1,83 +1,52 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
-const isMobile = Dimensions.get('window').width < 600;
-
 
 export default StyleSheet.create({
-
-  
   wrapper: {
     flex: 1,
     flexDirection: 'row',
     backgroundColor: '#F3F4F6',
   },
+  // Responsive: columna en mobile
+  wrapperMobile: { flexDirection: 'column' },
 
   mainContent: {
     flex: 1,
-    padding: 40,           // espacio alrededor igual al dashboard
+    padding: 40,
   },
+  mainContentMobile: {
+    flex: 1,
+    padding: 12,
+  },
+
   container: {
     paddingBottom: 32,
+  },
+  containerMobile: {
+    paddingBottom: 16,
   },
 
   // Header
   pageHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 20,
-  },
-
-    pageTitle: {
-    fontSize: isMobile ? 18 : 24,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-
-  pageSubtitle: {
-  fontSize: isMobile ? 12 : 14,
-  color: '#555',
-  marginTop: 4,
-  },
-
-  headerSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
   },
-  headerTitle: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  pageTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
   },
-  headerIconBg: {
-    backgroundColor: '#FF6B35',
-    padding: 8,
-    borderRadius: 8,
-    marginRight: 8,
+  pageTitleMobile: {
+    fontSize: 18,
   },
-  headerText: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  newButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FF6B35',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  newButtonText: {
-    color: '#FFF',
-    marginLeft: 6,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  subHeader: {
+  pageSubtitle: {
     fontSize: 14,
-    color: '#4B5563',
-    marginBottom: 16,
+    color: '#555',
+    marginTop: 4,
+  },
+  pageSubtitleMobile: {
+    fontSize: 12,
   },
 
   // Top Section
@@ -86,6 +55,12 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 16,
   },
+  // Stack en mobile
+  topSectionMobile: {
+    flexDirection: 'column',
+    gap: 12,
+  },
+
   cardBase: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
@@ -100,6 +75,8 @@ export default StyleSheet.create({
   },
   cardWide: { width: '60%' },
   cardNarrow: { width: '35%' },
+  cardFull: { width: '100%', marginBottom: 16 },
+
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -129,9 +106,16 @@ export default StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
+  formGridMobile: {
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
+  },
   formItem: {
     width: '48%',
     marginBottom: 12,
+  },
+  formItemMobile: {
+    width: '100%',
   },
   inputLabel: {
     fontSize: 14,
@@ -245,4 +229,27 @@ export default StyleSheet.create({
     color: '#FF6B35',
     marginRight: 12,
   },
+  newButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center', // centra el contenido horizontalmente
+  backgroundColor: '#FF6B35',
+  paddingVertical: 12,
+  paddingHorizontal: 12,
+  borderRadius: 8,
+  marginTop: 16,
+  alignSelf: 'flex-start', // por defecto (solo para escritorio)
+},
+newButtonMobile: {
+  width: '100%',
+  alignSelf: 'stretch', // estira el botón al ancho del contenedor
+},
+newButtonText: {
+  color: '#FFF',
+  marginLeft: 8,
+  fontSize: 16,
+  fontWeight: '600',
+},
+
 });
+

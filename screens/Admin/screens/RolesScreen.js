@@ -8,6 +8,7 @@ import {
   Switch,
   Platform,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AdminSidebar from '../../../components/AdminSidebar';
@@ -19,7 +20,19 @@ import {
 import styles from '../styles/RolesStyle';
 import { Ionicons } from '@expo/vector-icons';
 
+const MOBILE_BREAKPOINT = 700;
+
 const RolesScreen = ({ navigation, onLogout }) => {
+  // Responsive
+  const [layoutWidth, setLayoutWidth] = useState(Dimensions.get('window').width);
+  const isMobile = layoutWidth < MOBILE_BREAKPOINT;
+
+  useEffect(() => {
+    const onChange = ({ window }) => setLayoutWidth(window.width);
+    const sub = Dimensions.addEventListener('change', onChange);
+    return () => sub?.remove();
+  }, []);
+
   // Formulario
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
@@ -133,14 +146,17 @@ const RolesScreen = ({ navigation, onLogout }) => {
   };
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, isMobile && styles.wrapperMobile]}>
       <AdminSidebar navigation={navigation} activeRoute="Roles" onLogout={onLogout} />
-      <ScrollView style={styles.mainContent} contentContainerStyle={styles.container}>
+      <ScrollView
+        style={[styles.mainContent, isMobile && styles.mainContentMobile]}
+        contentContainerStyle={[styles.container, isMobile && styles.containerMobile]}
+      >
         {/* Header principal */}
         <View style={styles.pageHeader}>
           <View>
-            <Text style={styles.pageTitle}>Gestión de Meseros</Text>
-            <Text style={styles.pageSubtitle}>
+            <Text style={[styles.pageTitle, isMobile && styles.pageTitleMobile]}>Gestión de Meseros</Text>
+            <Text style={[styles.pageSubtitle, isMobile && styles.pageSubtitleMobile]}>
               Meseros activos: {activeCount} | Turno actual:{' '}
               {horaInicioTurno.toTimeString().slice(0, 5)} -{' '}
               {horaFinTurno.toTimeString().slice(0, 5)}
@@ -149,17 +165,21 @@ const RolesScreen = ({ navigation, onLogout }) => {
         </View>
 
         {/* Top: Form + Stats */}
-        <View style={styles.topSection}>
+        <View style={[styles.topSection, isMobile && styles.topSectionMobile]}>
           {/* Registro */}
-          <View style={[styles.cardBase, styles.cardWide]}>
+          <View style={[
+            styles.cardBase,
+            styles.cardWide,
+            isMobile && styles.cardFull
+          ]}>
             <View style={styles.cardHeader}>
               <View style={styles.cardIconBg}>
                 <Ionicons name="person-outline" size={20} color="#FF6B35" />
               </View>
               <Text style={styles.cardTitle}>Registro de Mesero</Text>
             </View>
-            <View style={styles.formGrid}>
-              <View style={styles.formItem}>
+            <View style={[styles.formGrid, isMobile && styles.formGridMobile]}>
+              <View style={[styles.formItem, isMobile && styles.formItemMobile]}>
                 <TextInput
                   style={styles.input}
                   placeholder="Nombre"
@@ -167,7 +187,7 @@ const RolesScreen = ({ navigation, onLogout }) => {
                   onChangeText={setNombre}
                 />
               </View>
-              <View style={styles.formItem}>
+              <View style={[styles.formItem, isMobile && styles.formItemMobile]}>
                 <TextInput
                   style={styles.input}
                   placeholder="Apellido"
@@ -175,7 +195,7 @@ const RolesScreen = ({ navigation, onLogout }) => {
                   onChangeText={setApellido}
                 />
               </View>
-              <View style={styles.formItem}>
+              <View style={[styles.formItem, isMobile && styles.formItemMobile]}>
                 <TextInput
                   style={styles.input}
                   placeholder="Correo"
@@ -184,7 +204,7 @@ const RolesScreen = ({ navigation, onLogout }) => {
                   onChangeText={setCorreo}
                 />
               </View>
-              <View style={styles.formItem}>
+              <View style={[styles.formItem, isMobile && styles.formItemMobile]}>
                 <TextInput
                   style={styles.input}
                   placeholder="Contraseña"
@@ -193,7 +213,7 @@ const RolesScreen = ({ navigation, onLogout }) => {
                   onChangeText={setContrasena}
                 />
               </View>
-              <View style={styles.formItem}>
+              <View style={[styles.formItem, isMobile && styles.formItemMobile]}>
                 <Text style={styles.inputLabel}>Hora inicio</Text>
                 {Platform.OS === 'web' ? (
                   <TextInput
@@ -232,7 +252,7 @@ const RolesScreen = ({ navigation, onLogout }) => {
                   </>
                 )}
               </View>
-              <View style={styles.formItem}>
+              <View style={[styles.formItem, isMobile && styles.formItemMobile]}>
                 <Text style={styles.inputLabel}>Hora fin</Text>
                 {Platform.OS === 'web' ? (
                   <TextInput
@@ -272,14 +292,21 @@ const RolesScreen = ({ navigation, onLogout }) => {
                 )}
               </View>
             </View>
-            <TouchableOpacity style={styles.newButton} onPress={handleCrear}>
+            <TouchableOpacity
+              style={[styles.newButton, isMobile && styles.newButtonMobile]}
+              onPress={handleCrear}
+            >
               <Ionicons name="add-outline" size={20} color="#FFF" />
               <Text style={styles.newButtonText}>Nuevo Mesero</Text>
             </TouchableOpacity>
           </View>
 
           {/* Estadísticas */}
-          <View style={[styles.cardBase, styles.cardNarrow]}>
+          <View style={[
+            styles.cardBase,
+            styles.cardNarrow,
+            isMobile && styles.cardFull
+          ]}>
             <View style={styles.cardHeader}>
               <View style={styles.cardIconBgLight}>
                 <Ionicons name="trending-up-outline" size={20} color="#FF6B35" />

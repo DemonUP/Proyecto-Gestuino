@@ -1,29 +1,30 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
 
-const isMobile = Dimensions.get('window').width < 600;
+const isMobile = Dimensions.get('window').width < 700;
 
 export default StyleSheet.create({
-  // Contenedor principal para sidebar + contenido
   wrapper: {
     flex: 1,
     flexDirection: Platform.OS === 'web' ? 'row' : 'column',
     backgroundColor: '#fff5f5',
   },
+  wrapperMobile: { flexDirection: 'column' },
 
-  // ScrollView que envuelve el contenido
   mainContent: {
     flex: 1,
     padding: 20,
   },
-
-  // Contenedor interior con padding
+  mainContentMobile: {
+    padding: 8,
+  },
   container: {
     padding: 20,
     backgroundColor: '#fff5f5',
     flex: 1,
   },
-
-  // ─── Header principal ───
+  containerMobile: {
+    padding: 8,
+  },
   pageHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -31,37 +32,35 @@ export default StyleSheet.create({
     marginBottom: 20,
   },
   pageTitle: {
-    fontSize: isMobile ? 18 : 24,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
   },
+  pageTitleMobile: { fontSize: 18 },
   pageSubtitle: {
-    fontSize: isMobile ? 12 : 14,
+    fontSize: 14,
     color: '#555',
     marginTop: 4,
   },
+  pageSubtitleMobile: { fontSize: 12 },
+
   headerActions: {
     flexDirection: 'row',
-    gap: 12,    
+    gap: 12,
   },
-
-  // ─── Filas de tarjetas ───
+  // Responsive row para las tarjetas destacadas
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'stretch',  // estira todas al mismo alto
+    alignItems: 'stretch',
     flexWrap: 'wrap',
     marginBottom: 16,
     gap: 16,
   },
-
-  // Título dentro de cada tarjeta
-  titulo: {
-    fontSize: isMobile ? 14 : 18,
-    fontWeight: 'bold',
-    color: '#333',
+  headerRowMobile: {
+    flexDirection: 'column',
+    gap: 12,
   },
-
   // Highlight Cards
   highlightCard: {
     backgroundColor: '#ffffff',
@@ -69,8 +68,7 @@ export default StyleSheet.create({
     borderLeftColor: '#FF6B35',
     borderRadius: 10,
     padding: 16,
-    marginBottom: isMobile ? 12 : 0,
-    width: isMobile ? '100%' : '30%',
+    marginBottom: 0,
     minHeight: 140,
     justifyContent: 'space-between',
     shadowColor: '#000',
@@ -78,6 +76,10 @@ export default StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 3,
+  },
+  highlightCardMobile: {
+    width: '100%',
+    marginBottom: 12,
   },
   highlightHeader: {
     flexDirection: 'row',

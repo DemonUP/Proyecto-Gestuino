@@ -19,12 +19,16 @@ import {
   obtenerVentasPorHora
 } from '../../supabase'; // Ajusta la ruta si tu archivo API está en otro lugar
 
+const MOBILE_BREAKPOINT = 700;
 const SIDEBAR_WIDTH = 280;
 
 export default function AdminHome({ usuario, navigation, onLogout }) {
   const [layoutWidth, setLayoutWidth] = useState(Dimensions.get('window').width);
   const [numColumns, setNumColumns] = useState(getColumns(layoutWidth));
   const [metricas, setMetricas] = useState(null);
+
+  // Nuevo: detectar si es móvil
+  const isMobile = layoutWidth < MOBILE_BREAKPOINT;
 
   useEffect(() => {
     const onChange = ({ window }) => {
@@ -78,15 +82,23 @@ export default function AdminHome({ usuario, navigation, onLogout }) {
     cargarMetricas();
   }, []);
 
-  const PADDING = 16;
-  const GAP = 16;
-  const contentWidth = layoutWidth - SIDEBAR_WIDTH;
-  const CARD_WIDTH = (contentWidth - PADDING * 2 - GAP * (numColumns - 1)) / numColumns;
+  // Cambios aquí: todo el layout se adapta según isMobile
+  const PADDING = isMobile ? 8 : 16;
+  const GAP = isMobile ? 8 : 16;
+  const contentWidth = isMobile ? layoutWidth : layoutWidth - SIDEBAR_WIDTH;
+  const metricCount = metricas ? metricas.length : 1;
+  const usedColumns = isMobile ? 1 : Math.min(numColumns, metricCount);
+
+  const CARD_WIDTH =
+    usedColumns > 1
+      ? (contentWidth - PADDING * 2 - GAP * (usedColumns - 1)) / usedColumns
+      : contentWidth - PADDING * 2;
+
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, isMobile && styles.wrapperMobile]}>
       <AdminSidebar navigation={navigation} activeRoute="AdminHome" />
-      <View style={styles.mainContent}>
+      <View style={[styles.mainContent, isMobile && styles.mainContentMobile]}>
         <ScrollView contentContainerStyle={[styles.container, { padding: PADDING }]}>
           {/* Header */}
           <View style={styles.header}>
@@ -114,14 +126,15 @@ export default function AdminHome({ usuario, navigation, onLogout }) {
                 data={m}
                 width={CARD_WIDTH}
                 gap={GAP}
-                isLastInRow={((i + 1) % numColumns) === 0}
+                isLastInRow={((i + 1) % usedColumns) === 0}
               />
             ))}
           </View>
 
+
           {/* Gráfico de tendencia */}
           <View style={styles.bottomSection}>
-            <TrendCard />
+            <TrendCard isMobile={isMobile} />
           </View>
         </ScrollView>
       </View>
@@ -201,8 +214,14 @@ function MetricCard({ data, width, gap, isLastInRow }) {
   );
 }
 
-function TrendCard() {
+function TrendCard({ isMobile }) {
   const [ventas, setVentas] = useState([]);
+  const layoutWidth = Dimensions.get('window').width;
+
+  // Si es móvil, cada gráfico ocupa todo el ancho; si no, en columnas
+  const chartWidth = isMobile
+    ? layoutWidth - 24 // padding lateral
+    : (layoutWidth - 320 - 48) / 3;
 
   useEffect(() => {
     const cargar = async () => {
@@ -223,20 +242,20 @@ function TrendCard() {
     legendFontSize: 10,
   }));
 
-  const chartWidth = (Dimensions.get('window').width - 320 - 48) / 3;
-
   return (
     <View style={styles.trendCard}>
       <View style={styles.trendHeader}>
         <Text style={styles.trendTitle}>Tendencia de Ventas</Text>
       </View>
-
       {ventas.length === 0 ? (
         <Text style={{ textAlign: 'center', marginVertical: 20 }}>Sin ventas hoy</Text>
       ) : (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View style={{
+          flexDirection: isMobile ? 'column' : 'row',
+          justifyContent: 'space-between'
+        }}>
           {/* Barras */}
-          <View style={{ width: chartWidth }}>
+          <View style={{ width: chartWidth, marginBottom: isMobile ? 16 : 0 }}>
             <Text style={styles.chartTitle}>Barras</Text>
             <BarChart
               data={{
@@ -251,9 +270,8 @@ function TrendCard() {
               showValuesOnTopOfBars
             />
           </View>
-
           {/* Línea */}
-          <View style={{ width: chartWidth }}>
+          <View style={{ width: chartWidth, marginBottom: isMobile ? 16 : 0 }}>
             <Text style={styles.chartTitle}>Línea</Text>
             <LineChart
               data={{
@@ -268,7 +286,6 @@ function TrendCard() {
               fromZero
             />
           </View>
-
           {/* Pastel */}
           <View style={{ width: chartWidth }}>
             <Text style={styles.chartTitle}>Pastel</Text>
@@ -288,7 +305,6 @@ function TrendCard() {
     </View>
   );
 }
-
 
 const chartConfig = {
   backgroundColor: '#fff',

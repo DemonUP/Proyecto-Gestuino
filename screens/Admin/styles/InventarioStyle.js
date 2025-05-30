@@ -1,8 +1,7 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
 
-const isMobile = Dimensions.get('window').width < 600;
+const isMobile = Dimensions.get('window').width < 700;
 
-// Toast web
 export const webToastStyle = {
   position: 'fixed',
   bottom: '60px',
@@ -25,11 +24,19 @@ export default StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#f9fafb',
   },
+  wrapperMobile: {
+    flexDirection: 'column',
+  },
   mainContent: {
     flex: 1,
     marginLeft: isMobile ? 0 : 40,
     marginRight: isMobile ? 0 : 40,
     backgroundColor: '#fafafa',
+  },
+  mainContentMobile: {
+    marginLeft: 0,
+    marginRight: 0,
+    padding: 8,
   },
   contentContainer: {
     padding: 16,
@@ -39,6 +46,11 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
+  },
+  headerMobile: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 8,
   },
   headerTitleContainer: {
     flexDirection: 'row',
@@ -67,6 +79,13 @@ export default StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: 'center',
+    alignSelf: 'flex-start',
+  },
+  newButtonMobile: {
+    width: '100%',
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    marginTop: 12,
   },
   newButtonText: {
     color: '#ffffff',
@@ -84,6 +103,9 @@ export default StyleSheet.create({
     elevation: 3,
     marginBottom: 24,
   },
+  formContainerMobile: {
+    padding: 8,
+  },
   input: {
     backgroundColor: '#ffffff',
     borderWidth: 1,
@@ -93,12 +115,22 @@ export default StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 12,
   },
+  inputMobile: {
+    paddingHorizontal: 8,
+    fontSize: 16,
+  },
   primaryBtn: {
     backgroundColor: '#27ae60',
     paddingVertical: 12,
     borderRadius: 6,
     marginBottom: 12,
     alignItems: 'center',
+    alignSelf: 'flex-start',
+    width: 180,
+  },
+  primaryBtnMobile: {
+    width: '100%',
+    alignSelf: 'stretch',
   },
   primaryBtnText: {
     color: '#ffffff',
@@ -109,6 +141,12 @@ export default StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 6,
     alignItems: 'center',
+    alignSelf: 'flex-start',
+    width: 120,
+  },
+  dangerBtnMobile: {
+    width: '100%',
+    alignSelf: 'stretch',
   },
   dangerBtnText: {
     color: '#ffffff',
@@ -128,6 +166,12 @@ export default StyleSheet.create({
     borderWidth: 2,
     borderColor: '#e5e7eb',
     flex: 1,
+    minWidth: 180,
+    maxWidth: 400,
+  },
+  itemMobile: {
+    minWidth: '100%',
+    marginHorizontal: 0,
   },
   itemHover: {
     transform: [{ translateY: -3 }],
@@ -162,6 +206,11 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginTop: 12,
   },
+  filaControlesMobile: {
+    flexDirection: 'column',
+    gap: 8,
+    alignItems: 'stretch',
+  },
   actionBtn: {
     flex: 1,
     borderWidth: 1,
@@ -171,9 +220,10 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginLeft: 8,
   },
-  actionBtnHover: {
-    backgroundColor: '#FF6B35',
-    borderColor: '#FF6B35',
+  actionBtnMobile: {
+    marginLeft: 0,
+    marginTop: 8,
+    width: '100%',
   },
   actionBtnText: {
     color: '#1f2937',

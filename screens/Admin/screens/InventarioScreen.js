@@ -17,17 +17,23 @@ import { crearIngrediente } from '../controllers/InventarioController';
 import AdminSidebar from '../../../components/AdminSidebar';
 import styles, { webToastStyle } from '../styles/InventarioStyle';
 
-const isMobile = Dimensions.get('window').width < 600;
+const MOBILE_BREAKPOINT = 700;
 
 export default function InventarioScreen() {
+  const [layoutWidth, setLayoutWidth] = useState(Dimensions.get('window').width);
   const [ingredientes, setIngredientes] = useState([]);
   const [cantidades, setCantidades] = useState({});
   const [showNewForm, setShowNewForm] = useState(false);
   const [newName, setNewName] = useState('');
   const [newStock, setNewStock] = useState('');
 
+  const isMobile = layoutWidth < MOBILE_BREAKPOINT;
+
   useEffect(() => {
     obtenerIngredientes();
+    const onChange = ({ window }) => setLayoutWidth(window.width);
+    const sub = Dimensions.addEventListener('change', onChange);
+    return () => sub?.remove();
   }, []);
 
   const toast = msg => {
@@ -99,12 +105,12 @@ export default function InventarioScreen() {
   };
 
   const renderNewForm = () => (
-    <View style={styles.formContainer}>
+    <View style={[styles.formContainer, isMobile && styles.formContainerMobile]}>
       <TextInput
         placeholder="Nombre del ingrediente"
         value={newName}
         onChangeText={setNewName}
-        style={styles.input}
+        style={[styles.input, isMobile && styles.inputMobile]}
       />
       <TextInput
         placeholder="Stock inicial"
@@ -115,13 +121,13 @@ export default function InventarioScreen() {
           else if (text === '') setNewStock('');
         }}
         keyboardType="numeric"
-        style={styles.input}
+        style={[styles.input, isMobile && styles.inputMobile]}
       />
 
-      <TouchableOpacity style={styles.primaryBtn} onPress={handleCreateIngrediente}>
+      <TouchableOpacity style={[styles.primaryBtn, isMobile && styles.primaryBtnMobile]} onPress={handleCreateIngrediente}>
         <Text style={styles.primaryBtnText}>Guardar Ingrediente</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.dangerBtn} onPress={() => setShowNewForm(false)}>
+      <TouchableOpacity style={[styles.dangerBtn, isMobile && styles.dangerBtnMobile]} onPress={() => setShowNewForm(false)}>
         <Text style={styles.dangerBtnText}>Cancelar</Text>
       </TouchableOpacity>
     </View>
@@ -129,7 +135,11 @@ export default function InventarioScreen() {
 
   const renderItem = ({ item }) => (
     <Pressable
-      style={({ hovered }) => [styles.item, hovered && styles.itemHover]}
+      style={({ hovered }) => [
+        styles.item,
+        isMobile && styles.itemMobile,
+        hovered && styles.itemHover
+      ]}
     >
       <View style={{ flex: 1 }}>
         <Text style={styles.nombre}>{item.nombre}</Text>
@@ -138,20 +148,27 @@ export default function InventarioScreen() {
           <Text style={styles.stockValue}>{item.stock}</Text>
         </View>
       </View>
-      <View style={styles.filaControles}>
+      <View style={[styles.filaControles, isMobile && styles.filaControlesMobile]}>
         <TextInput
           placeholder="+ cantidad"
           keyboardType="numeric"
           value={cantidades[item.id] || ''}
           onChangeText={text => setCantidades({ ...cantidades, [item.id]: text })}
-          style={styles.input}
+          style={[styles.input, isMobile && styles.inputMobile, { flex: 1 }]}
         />
         <Pressable
-          style={({ hovered }) => [styles.actionBtn, hovered && styles.actionBtnHover]}
+          style={({ hovered }) => [
+            styles.actionBtn,
+            isMobile && styles.actionBtnMobile,
+            hovered && styles.actionBtnHover
+          ]}
           onPress={() => solicitarABodega(item.id)}
         >
           {({ hovered }) => (
-            <Text style={[styles.actionBtnText, hovered && styles.actionBtnTextHover]}>Solicitar a bodega</Text>
+            <Text style={[
+              styles.actionBtnText,
+              hovered && styles.actionBtnTextHover
+            ]}>Solicitar a bodega</Text>
           )}
         </Pressable>
       </View>
@@ -159,20 +176,18 @@ export default function InventarioScreen() {
   );
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, isMobile && styles.wrapperMobile]}>
       {!isMobile && <AdminSidebar />}
-      <ScrollView style={styles.mainContent} contentContainerStyle={styles.contentContainer}>
-        {/* Header */}
-        <View style={styles.header}>
+      <ScrollView style={[styles.mainContent, isMobile && styles.mainContentMobile]} contentContainerStyle={styles.contentContainer}>
+        <View style={[styles.header, isMobile && styles.headerMobile]}>
           <View>
             <View style={styles.headerTitleContainer}>
-
               <Text style={styles.headerTitle}>Inventario de Ingredientes</Text>
             </View>
             <Text style={styles.headerSubtitle}>Control de existencias en tiempo real</Text>
           </View>
           {!showNewForm && (
-            <TouchableOpacity style={styles.newButton} onPress={() => setShowNewForm(true)}>
+            <TouchableOpacity style={[styles.newButton, isMobile && styles.newButtonMobile]} onPress={() => setShowNewForm(true)}>
               <Ionicons name="add" size={16} color="#fff" style={{ marginRight: 6 }} />
               <Text style={styles.newButtonText}>Nuevo Ingrediente</Text>
             </TouchableOpacity>
@@ -182,17 +197,19 @@ export default function InventarioScreen() {
         {showNewForm ? (
           renderNewForm()
         ) : (
-          <FlatList
-            data={ingredientes}
-            keyExtractor={item => item.id.toString()}
-            renderItem={renderItem}
-            numColumns={isMobile ? 1 : 2}
-            columnWrapperStyle={!isMobile && { justifyContent: 'space-between' }}
-            ListEmptyComponent={<Text style={styles.emptyText}>No hay ingredientes registrados.</Text>}
-          />
+        <FlatList
+          data={ingredientes}
+          keyExtractor={item => item.id.toString()}
+          renderItem={renderItem}
+          numColumns={isMobile ? 1 : 2}
+          key={isMobile ? 'list-1col' : 'list-2col'}
+          columnWrapperStyle={!isMobile && { justifyContent: 'space-between' }}
+          ListEmptyComponent={<Text style={styles.emptyText}>No hay ingredientes registrados.</Text>}
+          contentContainerStyle={{ paddingBottom: 32 }}
+        />
+
         )}
       </ScrollView>
     </View>
   );
 }
-

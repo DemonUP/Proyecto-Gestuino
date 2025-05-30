@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   Platform,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -14,6 +15,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import AdminSidebar from '../../../components/AdminSidebar';
 import styles from '../styles/ReportesStyle';
 import useReportesController from '../controllers/ReportesController';
+
+const MOBILE_BREAKPOINT = 700;
 
 export default function ReportesScreen() {
   const navigation = useNavigation();
@@ -33,6 +36,16 @@ export default function ReportesScreen() {
     limpiarFiltros,
   } = useReportesController();
 
+  // Responsive: detectar móvil
+  const [layoutWidth, setLayoutWidth] = useState(Dimensions.get('window').width);
+  const isMobile = layoutWidth < MOBILE_BREAKPOINT;
+
+  useEffect(() => {
+    const onChange = ({ window }) => setLayoutWidth(window.width);
+    const sub = Dimensions.addEventListener('change', onChange);
+    return () => sub?.remove();
+  }, []);
+
   const now = new Date();
   const monthName = now
     .toLocaleString('es-ES', { month: 'long' })
@@ -45,8 +58,14 @@ export default function ReportesScreen() {
       maximumFractionDigits: 2,
     }).format(value);
 
+  // NUEVO: ancho dinámico para cada highlightCard
+  const highlightCount = 3;
+  const highlightCardStyle = isMobile
+    ? [styles.highlightCard, styles.highlightCardMobile]
+    : [styles.highlightCard, { width: `${100 / highlightCount}%`, minWidth: 220, maxWidth: 400, flex: 1 }];
+
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, isMobile && styles.wrapperMobile]}>
       <AdminSidebar
         navigation={navigation}
         activeRoute="Reportes"
@@ -54,14 +73,14 @@ export default function ReportesScreen() {
       />
 
       <ScrollView
-        style={styles.mainContent}
-        contentContainerStyle={styles.container}
+        style={[styles.mainContent, isMobile && styles.mainContentMobile]}
+        contentContainerStyle={[styles.container, isMobile && styles.containerMobile]}
       >
         {/* ─── Header principal ─── */}
         <View style={styles.pageHeader}>
           <View>
-            <Text style={styles.pageTitle}>Reporte Financiero</Text>
-            <Text style={styles.pageSubtitle}>
+            <Text style={[styles.pageTitle, isMobile && styles.pageTitleMobile]}>Reporte Financiero</Text>
+            <Text style={[styles.pageSubtitle, isMobile && styles.pageSubtitleMobile]}>
               Período: {monthName} {year} | Moneda: COL
             </Text>
           </View>
@@ -107,8 +126,8 @@ export default function ReportesScreen() {
         )}
 
         {/* ─── Tarjetas destacadas ─── */}
-        <View style={styles.headerRow}>
-          <View style={styles.highlightCard}>
+        <View style={[styles.headerRow, isMobile && styles.headerRowMobile]}>
+          <View style={highlightCardStyle}>
             <View style={styles.highlightHeader}>
               <Text style={styles.titulo}>TOTAL GENERAL</Text>
               <View style={styles.highlightIconContainer}>
@@ -120,7 +139,7 @@ export default function ReportesScreen() {
             </Text>
           </View>
 
-          <View style={styles.highlightCard}>
+          <View style={highlightCardStyle}>
             <View style={styles.highlightHeader}>
               <Text style={styles.titulo}>IVA COBRADO</Text>
               <View style={styles.highlightIconContainer}>
@@ -135,7 +154,7 @@ export default function ReportesScreen() {
             </Text>
           </View>
 
-          <View style={styles.highlightCard}>
+          <View style={highlightCardStyle}>
             <View style={styles.highlightHeader}>
               <Text style={styles.titulo}>PROPINA COBRADA</Text>
               <View style={styles.highlightIconContainer}>

@@ -2,7 +2,11 @@ import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
   wrapper: { flex: 1, flexDirection: 'row', backgroundColor: '#F9FAFB' },
+  // NUEVO: para móvil, stackea todo en columna
+  wrapperMobile: { flexDirection: 'column' },
   mainContent: { flex: 1 },
+  // NUEVO: para móvil, quita cualquier margen izquierdo extra
+  mainContentMobile: { flex: 1, marginLeft: 0 },
   container: {},
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
   title: { fontSize: 24, fontWeight: '700', color: '#111827' },
@@ -13,7 +17,12 @@ export default StyleSheet.create({
   logoutButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#E5E7EB', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
   logoutText: { marginRight: 6, color: '#4B5563', fontWeight: '500', fontSize: 14 },
 
-  metricsGrid: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start' },
+  metricsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+  },
+  // El width lo controla el prop recibido, no aquí
   metricCard: {
     backgroundColor: '#FFFFFF',
     padding: 16,
@@ -46,11 +55,10 @@ export default StyleSheet.create({
   trendPlaceholder: { height: 200, backgroundColor: '#F3F4F6', borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
   trendPlaceholderText: { color: '#9CA3AF', fontSize: 14 },
   chartTitle: {
-  fontWeight: 'bold',
-  fontSize: 12,
-  textAlign: 'center',
-  marginBottom: 8,
-  color: '#374151',
-},
-
+    fontWeight: 'bold',
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 8,
+    color: '#374151',
+  },
 });
