@@ -136,33 +136,39 @@ export function usePedidoController(navigation) {
   };
 
   const actualizarEstadoMesa = async () => {
-  console.log("🛠️ Ejecutando actualización de estado...");
-  console.log("ℹ️ ID de mesa seleccionada:", mesaSeleccionada);
-  console.log("ℹ️ Nuevo estado:", estadoMesa);
+    if (!mesaSeleccionada) {
+      mostrarToast('Debes seleccionar una mesa.');
+      return;
+    }
 
-  if (!mesaSeleccionada) {
-    mostrarToast('Debes seleccionar una mesa.');
-    return;
-  }
+    const ahora = new Date().toISOString();
+    const nuevoEstado = estadoMesa;
+    const payload = {
+      estado: nuevoEstado,
+    };
 
-  const { data, error } = await supabase
-    .from('mesas')
-    .update({ estado: estadoMesa }) // ✅ solo se actualiza el estado
-    .eq('id', mesaSeleccionada)
-    .select();
+    if (nuevoEstado === 'ocupada') {
+      payload.ocupada_desde = ahora; // ✅ Marca el inicio visual
+    }
 
-  if (error) {
-    console.error('❌ Error actualizando estado:', error);
-    Alert.alert('Error', 'No se pudo actualizar el estado de la mesa.');
-  } else if (!data || data.length === 0) {
-    console.warn('⚠️ No se actualizó ninguna fila. ¿ID correcto?');
-    Alert.alert('Atención', 'No se actualizó la mesa. Revisa el ID.');
-  } else {
-    console.log("✅ Estado actualizado correctamente:", data);
-    mostrarToast(`✅ Estado de la mesa actualizado a "${estadoMesa}"`);
-    obtenerMesas();
-  }
-};
+    if (nuevoEstado === 'disponible') {
+      payload.ocupada_desde = null; // ✅ Reinicia el punto de corte
+    }
+
+    const { data, error } = await supabase
+      .from('mesas')
+      .update(payload)
+      .eq('id', mesaSeleccionada)
+      .select();
+
+    if (error) {
+      console.error('❌ Error actualizando estado:', error);
+      Alert.alert('Error', 'No se pudo actualizar el estado de la mesa.');
+    } else {
+      mostrarToast(`✅ Estado actualizado a "${nuevoEstado}"`);
+      obtenerMesas();
+    }
+  };
 
 
 
@@ -213,10 +219,12 @@ export function usePedidoController(navigation) {
         estado: 'ocupada',
         cantidad_personas: parseInt(cantidadPersonas),
         descripcion: descripcionMesa || null,
-        usuario_id: usuario?.id, // 👈 asignamos el mesero actual
+        usuario_id: usuario?.id,
+        ocupada_desde: new Date().toISOString(), // 👈 aquí seteas la hora exacta
       })
       .eq('id', mesaSeleccionada);
   }
+
 
 
   const inserts = [];

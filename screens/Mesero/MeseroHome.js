@@ -1,4 +1,3 @@
-// MeseroHome.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -11,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import AdminSidebar from '../../components/AdminSidebar';
 import styles from './styles/MeseroHomeStyles';
-import { supabase } from '../../supabase';
+import supabase, { obtenerUsuarioDeSesion } from '../../supabase';
 
 import {
   obtenerPedidosActivos,
@@ -20,8 +19,6 @@ import {
 } from '../../supabase';
 
 const SIDEBAR_WIDTH = 280;
-const PADDING = 32;
-const GAP = 24;
 const MOBILE_BREAKPOINT = 600;
 
 function getColumns(width) {
@@ -30,9 +27,10 @@ function getColumns(width) {
   return 1;
 }
 
-export default function MeseroHome({ usuario, navigation, onLogout }) {
+export default function MeseroHome({ navigation, onLogout }) {
   const [layoutWidth, setLayoutWidth] = useState(Dimensions.get('window').width);
   const [numColumns, setNumColumns] = useState(getColumns(layoutWidth - SIDEBAR_WIDTH));
+  const [usuario, setUsuario] = useState(null);
   const [stats, setStats] = useState(null);
   const [mesas, setMesas] = useState([]);
   const isMobile = layoutWidth < MOBILE_BREAKPOINT;
@@ -47,7 +45,10 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
   }, []);
 
   useEffect(() => {
-    const cargarDatos = async () => {
+    const cargar = async () => {
+      const u = await obtenerUsuarioDeSesion();
+      setUsuario(u);
+
       const [pedidos, mesasActivas, propinas] = await Promise.all([
         obtenerPedidosActivos(),
         obtenerMesasActivas(),
@@ -63,18 +64,33 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
           value: propinas.toLocaleString('es-CO', { style: 'currency', currency: 'COP' }),
         },
       ]);
+
+      if (u?.id) {
+        cargarMesas(u.id);
+      }
     };
 
-    cargarDatos();
-    cargarMesas();
+    cargar();
   }, []);
 
-  const cargarMesas = async () => {
-  const { data, error } = await supabase
-    .from('mesas')
-    .select(`id, numero, estado, usuario_id, pedidos (cantidad, productos (nombre, precio))`)
-    .eq('usuario_id', usuario.id);
-
+  const cargarMesas = async (usuarioId) => {
+    const { data, error } = await supabase
+      .from('mesas')
+      .select(`
+        id,
+        numero,
+        estado,
+        cantidad_personas,
+        ocupada_desde,
+        usuario_id,
+        pedidos!pedidos_mesa_id_fkey (
+          id,
+          cantidad,
+          creado_en,
+          productos:producto_id (nombre, precio)
+        )
+      `)
+      .eq('usuario_id', usuarioId); // ✅ Solo filtramos por usuario
 
     if (error) {
       console.error('Error cargando mesas:', error);
@@ -82,8 +98,24 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
       return;
     }
 
-    setMesas(data);
+    const mesasConUltimoPedido = data
+      .filter(m => m.estado === 'ocupada') // ✅ Filtramos en JS
+      .map(m => {
+        const pedidosValidos = (m.pedidos || []).filter(p =>
+          m.ocupada_desde ? new Date(p.creado_en) >= new Date(m.ocupada_desde) : false
+        );
+
+        const ultimoPedido = pedidosValidos.sort(
+          (a, b) => new Date(b.creado_en) - new Date(a.creado_en)
+        )[0];
+
+        return { ...m, ultimoPedido };
+      });
+
+    setMesas(mesasConUltimoPedido);
   };
+
+
 
   function StatCard({ stat }) {
     return (
@@ -119,24 +151,30 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
             {estadoMesa === 'cerrada' ? 'Cerrada' : activa ? 'Ocupada' : 'Disponible'}
           </Text>
         </View>
-        {mesa.pedidos?.map((p, i) => (
-          <View key={i} style={styles.pedidoItem}>
-            <Text>{p.cantidad}x {p.productos.nombre}</Text>
-            <Text>
-              {(p.cantidad * p.productos.precio).toLocaleString('es-CO', {
-                style: 'currency', currency: 'COP'
-              })}
-            </Text>
-          </View>
-        ))}
+          {mesa.ultimoPedido ? (
+            <View style={styles.pedidoItem}>
+              <Text>{mesa.ultimoPedido.cantidad}x {mesa.ultimoPedido.productos.nombre}</Text>
+              <Text>
+                {(mesa.ultimoPedido.cantidad * mesa.ultimoPedido.productos.precio).toLocaleString('es-CO', {
+                  style: 'currency', currency: 'COP'
+                })}
+              </Text>
+            </View>
+          ) : (
+          <Text style={{ color: '#718096' }}>Sin pedidos aún</Text>
+        )}
+        <Text style={{ marginTop: 4, fontStyle: 'italic', color: '#4A5568' }}>
+          Personas: {mesa.cantidad_personas || '—'}
+        </Text>
       </Pressable>
     );
   }
 
+  if (!usuario) return null; // ⛔ Previene errores por usuario null
+
   return (
     <View style={styles.wrapper}>
       <AdminSidebar navigation={navigation} activeRoute="MeseroHome" onLogout={onLogout} />
-
       <ScrollView style={styles.mainContent} contentContainerStyle={[styles.contentContainer]}>
         <View style={[styles.header, isMobile && styles.headerMobile]}>
           <Text style={{ fontSize: 20, fontWeight: 'bold', flexWrap: 'wrap' }}>
@@ -158,7 +196,10 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
         <View style={styles.tablesSection}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Mesas Asignadas</Text>
-            <Pressable style={[styles.newButton, isMobile && styles.newButtonMobile]} onPress={() => navigation.navigate('Pedido')}>
+            <Pressable
+              style={[styles.newButton, isMobile && styles.newButtonMobile]}
+              onPress={() => navigation.navigate('Pedido')}
+            >
               <Text style={styles.newButtonText}>+ Nuevo Pedido</Text>
             </Pressable>
           </View>
