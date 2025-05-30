@@ -5,11 +5,8 @@ const isMobile = Dimensions.get('window').width < 700;
 export default StyleSheet.create({
   wrapper: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: isMobile ? 'column' : 'row',
     backgroundColor: '#f9fafb',
-  },
-  wrapperMobile: {
-    flexDirection: 'column',
   },
   mainContent: {
     flex: 1,
@@ -17,24 +14,16 @@ export default StyleSheet.create({
     marginRight: isMobile ? 0 : 40,
     backgroundColor: '#fafafa',
   },
-  mainContentMobile: {
-    marginLeft: 0,
-    marginRight: 0,
-    padding: 8,
-  },
   contentContainer: {
     padding: isMobile ? 8 : 16,
+    paddingBottom: 40,
   },
   header: {
-    flexDirection: 'row',
+    flexDirection: isMobile ? 'column' : 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: isMobile ? 'stretch' : 'center',
+    gap: isMobile ? 12 : 0,
     marginBottom: 24,
-  },
-  headerMobile: {
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    gap: 8,
   },
   headerTitle: {
     fontSize: 20,
@@ -52,13 +41,8 @@ export default StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: 'center',
-    alignSelf: 'flex-start',
-  },
-  newButtonMobile: {
-    width: '100%',
-    alignSelf: 'stretch',
-    justifyContent: 'center',
-    marginTop: 12,
+    alignSelf: isMobile ? 'stretch' : 'flex-start',
+    marginTop: isMobile ? 8 : 0,
   },
   newButtonText: {
     color: '#ffffff',
@@ -67,7 +51,7 @@ export default StyleSheet.create({
   },
   formContainer: {
     backgroundColor: '#ffffff',
-    padding: 16,
+    padding: isMobile ? 12 : 16,
     borderRadius: 10,
     marginBottom: 24,
     shadowColor: '#000',
@@ -75,9 +59,6 @@ export default StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  formContainerMobile: {
-    padding: 8,
   },
   input: {
     backgroundColor: '#ffffff',
@@ -87,23 +68,16 @@ export default StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginBottom: 12,
-  },
-  inputMobile: {
-    paddingHorizontal: 8,
-    fontSize: 16,
+    fontSize: 14,
   },
   inputCantidad: {
-    width: 60,
+    width: isMobile ? '100%' : 60,
     borderWidth: 1,
     borderColor: '#d1d5db',
     borderRadius: 6,
     padding: 6,
-    marginLeft: 8,
-  },
-  inputCantidadMobile: {
-    width: '100%',
-    marginLeft: 0,
-    marginTop: 8,
+    marginLeft: isMobile ? 0 : 8,
+    marginTop: isMobile ? 8 : 0,
   },
   label: {
     fontSize: 14,
@@ -137,11 +111,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
     alignSelf: 'flex-start',
-    width: 180,
-  },
-  primaryBtnMobile: {
-    width: '100%',
-    alignSelf: 'stretch',
+    width: isMobile ? '100%' : 180,
   },
   primaryBtnText: {
     color: '#ffffff',
@@ -153,11 +123,7 @@ export default StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
     alignSelf: 'flex-start',
-    width: 120,
-  },
-  dangerBtnMobile: {
-    width: '100%',
-    alignSelf: 'stretch',
+    width: isMobile ? '100%' : 120,
   },
   dangerBtnText: {
     color: '#ffffff',
@@ -168,8 +134,8 @@ export default StyleSheet.create({
     marginBottom: 12,
   },
   filaIngrediente: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: isMobile ? 'column' : 'row',
+    alignItems: isMobile ? 'flex-start' : 'center',
     marginBottom: 8,
   },
   ingredientName: {
@@ -193,19 +159,13 @@ export default StyleSheet.create({
     backgroundColor: '#ffffff',
     padding: 16,
     marginBottom: 16,
-    width: '48%',
-    marginHorizontal: 0,
+    marginHorizontal: isMobile ? 0 : 8,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#e5e7eb',
-    minWidth: 180,
-    maxWidth: 420,
     flex: 1,
-  },
-  cardMobile: {
-    width: '100%',
-    minWidth: '100%',
-    marginHorizontal: 0,
+    maxWidth: isMobile ? '100%' : '48%',
+    minWidth: isMobile ? '100%' : 280,
   },
   cardHover: {
     transform: [{ translateY: -3 }],
@@ -223,10 +183,15 @@ export default StyleSheet.create({
     marginBottom: 12,
   },
   nombreProducto: {
-    fontSize: 18,
+    fontSize: isMobile ? 16 : 18,
     fontWeight: 'bold',
     color: '#1f2937',
-    marginBottom: 8,
+    marginBottom: 4,
+  },
+  descripcionTexto: {
+    fontSize: 13,
+    color: '#4b5563',
+    marginBottom: 4,
   },
   actionRow: {
     flexDirection: 'row',
