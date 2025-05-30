@@ -141,13 +141,18 @@ export default function MenuScreen() {
         onChangeText={setNewIngName}
         style={styles.input}
       />
-      <TextInput
-        placeholder="Stock inicial"
-        value={newIngStock}
-        onChangeText={setNewIngStock}
-        keyboardType="numeric"
-        style={styles.input}
-      />
+        <TextInput
+          placeholder="Stock inicial"
+          value={newIngStock}
+          onChangeText={text => {
+            // Solo acepta números positivos
+            const cleaned = text.replace(/[^0-9]/g, '');
+            setNewIngStock(cleaned);
+          }}
+          keyboardType="numeric"
+          style={styles.input}
+        />
+
       <Pressable style={styles.primaryBtn} onPress={handleSubmitIngrediente}>
         <Text style={styles.primaryBtnText}>Guardar Ingrediente</Text>
       </Pressable>
