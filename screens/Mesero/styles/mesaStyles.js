@@ -5,7 +5,7 @@ const isMobile = Dimensions.get('window').width < 600;
 export default StyleSheet.create({
   wrapper: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: isMobile ? 'column' : 'row',
     backgroundColor: '#F7FAFC',
   },
   mainContent: {
@@ -22,6 +22,11 @@ export default StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 24,
+  },
+  headerMobile: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 6,
   },
   headerIconContainer: {
     backgroundColor: '#E55A1B',
@@ -42,44 +47,52 @@ export default StyleSheet.create({
 
   // Grid de mesas
   mesasGrid: {
-    flexDirection: 'row',
+    flexDirection: isMobile ? 'column' : 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 16,
+    justifyContent: isMobile ? 'center' : 'space-between',
+    gap: isMobile ? 12 : 16,
   },
-  mesaCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 20,
-    borderWidth: 2,
-    borderColor: '#E2E8F0',
-    marginBottom: 16,
-    flexBasis: isMobile ? '100%' : '48%',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
+mesaCard: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 12,
+  paddingVertical: isMobile ? 16 : 20,
+  paddingHorizontal: 20,
+  borderWidth: 2,
+  borderColor: '#E2E8F0',
+  marginBottom: 16,
+  width: isMobile ? '100%' : '48%',
+  alignSelf: isMobile ? 'center' : 'auto',
+  shadowColor: '#000',
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 2,
+  minHeight: isMobile ? 140 : undefined, // altura mínima para móviles
+  justifyContent: 'space-between',      // distribuye verticalmente contenido
+},
+
   mesaCardOcupada: {
     borderColor: '#FF6B35',
   },
   mesaNumero: {
-    fontSize: 18,
+    fontSize: isMobile ? 20 : 18,
     fontWeight: '600',
     color: '#2D3748',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   mesaEstado: {
     fontSize: 14,
     fontWeight: '500',
     color: '#FF6B35',
     textTransform: 'uppercase',
+    marginTop: 8,
+    letterSpacing: 0.5,
+    alignSelf: 'flex-start',
   },
   mesaEstadoOcupada: {
     color: '#C53030',
   },
 
-  // Modal overlay & contenido
+  // Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',

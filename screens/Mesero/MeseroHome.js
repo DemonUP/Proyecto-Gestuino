@@ -1,3 +1,4 @@
+// MeseroHome.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -10,15 +11,18 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import AdminSidebar from '../../components/AdminSidebar';
 import styles from './styles/MeseroHomeStyles';
+import { supabase } from '../../supabase';
+
 import {
   obtenerPedidosActivos,
   obtenerMesasActivas,
   obtenerPropinasHoy,
-} from '../../supabase'; // Ajusta si tu archivo está en otra ruta
+} from '../../supabase';
 
 const SIDEBAR_WIDTH = 280;
 const PADDING = 32;
-const GAP = 16;
+const GAP = 24;
+const MOBILE_BREAKPOINT = 600;
 
 function getColumns(width) {
   if (width >= 1024) return 3;
@@ -31,6 +35,7 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
   const [numColumns, setNumColumns] = useState(getColumns(layoutWidth - SIDEBAR_WIDTH));
   const [stats, setStats] = useState(null);
   const [mesas, setMesas] = useState([]);
+  const isMobile = layoutWidth < MOBILE_BREAKPOINT;
 
   useEffect(() => {
     const onChange = ({ window }) => {
@@ -55,10 +60,7 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
         {
           key: 'propinas',
           label: 'Propinas hoy',
-          value: propinas.toLocaleString('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-          }),
+          value: propinas.toLocaleString('es-CO', { style: 'currency', currency: 'COP' }),
         },
       ]);
     };
@@ -70,18 +72,7 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
   const cargarMesas = async () => {
     const { data, error } = await supabase
       .from('mesas')
-      .select(`
-        id,
-        numero,
-        estado,
-        pedidos (
-          cantidad,
-          productos (
-            nombre,
-            precio
-          )
-        )
-      `);
+      .select(`id, numero, estado, pedidos (cantidad, productos (nombre, precio))`);
 
     if (error) {
       console.error('Error cargando mesas:', error);
@@ -92,18 +83,9 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
     setMesas(data);
   };
 
-  const contentWidth = layoutWidth - SIDEBAR_WIDTH;
-  const cardWidth =
-    (contentWidth - PADDING * 2 - GAP * (numColumns - 1)) / numColumns;
-
-  function StatCard({ stat, isLast }) {
+  function StatCard({ stat }) {
     return (
-      <View
-        style={[
-          styles.statCard,
-          { flex: 1, marginRight: isLast ? 0 : GAP },
-        ]}
-      >
+      <View style={[styles.statCard]}>
         <Text style={styles.statValue}>{stat.value}</Text>
         <Text style={styles.statLabel}>{stat.label}</Text>
       </View>
@@ -118,7 +100,7 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
       <Pressable
         style={[
           styles.mesaCard,
-          { width: cardWidth, marginRight: GAP },
+          isMobile && styles.mesaCardMobile,
           estadoMesa === 'cerrada' && { borderColor: '#7e22ce', borderWidth: 2 },
         ]}
         onPress={() => navigation.navigate('Pedido', { mesa })}
@@ -132,22 +114,15 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
               estadoMesa === 'cerrada' && { color: '#7e22ce' },
             ]}
           >
-            {estadoMesa === 'cerrada'
-              ? 'Cerrada'
-              : activa
-              ? 'Ocupada'
-              : 'Disponible'}
+            {estadoMesa === 'cerrada' ? 'Cerrada' : activa ? 'Ocupada' : 'Disponible'}
           </Text>
         </View>
         {mesa.pedidos?.map((p, i) => (
           <View key={i} style={styles.pedidoItem}>
-            <Text>
-              {p.cantidad}x {p.productos.nombre}
-            </Text>
+            <Text>{p.cantidad}x {p.productos.nombre}</Text>
             <Text>
               {(p.cantidad * p.productos.precio).toLocaleString('es-CO', {
-                style: 'currency',
-                currency: 'COP',
+                style: 'currency', currency: 'COP'
               })}
             </Text>
           </View>
@@ -158,59 +133,34 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
 
   return (
     <View style={styles.wrapper}>
-      <AdminSidebar
-        navigation={navigation}
-        activeRoute="MeseroHome"
-        onLogout={onLogout}
-      />
+      <AdminSidebar navigation={navigation} activeRoute="MeseroHome" onLogout={onLogout} />
 
-      <ScrollView
-        style={styles.mainContent}
-        contentContainerStyle={styles.contentContainer}
-      >
-        {/* Header */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 24,
-            paddingHorizontal: PADDING,
-          }}
-        >
-          <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
+      <ScrollView style={styles.mainContent} contentContainerStyle={[styles.contentContainer]}>
+        <View style={[styles.header, isMobile && styles.headerMobile]}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold', flexWrap: 'wrap' }}>
             ¡Bienvenido, mesero/a {usuario.nombre} {usuario.apellido}!
           </Text>
           <TouchableOpacity
             onPress={onLogout}
-            style={{ flexDirection: 'row', alignItems: 'center' }}
-            activeOpacity={0.7}
+            style={[{ flexDirection: 'row', alignItems: 'center' }, isMobile && styles.logoutBtnMobile]}
           >
             <Text style={{ marginRight: 4, fontSize: 16 }}>Cerrar Sesión</Text>
             <Ionicons name="log-out-outline" size={20} color="#4B5563" />
           </TouchableOpacity>
         </View>
 
-        {/* Estadísticas */}
-        <View style={{ flexDirection: 'row', marginBottom: GAP, paddingHorizontal: PADDING }}>
-          {stats &&
-            stats.map((s, i) => (
-              <StatCard key={s.key} stat={s} isLast={i === stats.length - 1} />
-            ))}
+        <View style={[styles.statsContainer]}>
+          {stats && stats.map((s) => <StatCard key={s.key} stat={s} />)}
         </View>
 
-        {/* Mesas */}
         <View style={styles.tablesSection}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>Mesas Asignadas</Text>
-            <Pressable
-              style={styles.newButton}
-              onPress={() => navigation.navigate('Pedido')}
-            >
+            <Pressable style={[styles.newButton, isMobile && styles.newButtonMobile]} onPress={() => navigation.navigate('Pedido')}>
               <Text style={styles.newButtonText}>+ Nuevo Pedido</Text>
             </Pressable>
           </View>
-          <View style={styles.mesasGrid}>
+          <View style={[styles.mesasGrid, isMobile && styles.mesasGridMobile]}>
             {mesas.map((mesa) => (
               <MesaCard key={mesa.id} mesa={mesa} />
             ))}

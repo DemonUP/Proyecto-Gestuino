@@ -149,31 +149,41 @@ export default function PedidoScreen({ usuario, navigation }) {
         {/* Productos */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Productos disponibles</Text>
-          <FlatList
-            data={productos}
-            keyExtractor={i => i.id.toString()}
-            numColumns={isMobile ? 1 : 2}
-            columnWrapperStyle={!isMobile && { justifyContent: 'space-between' }}
-            renderItem={({ item }) => (
-              <Pressable
-                style={styles.productCard}
-                onPress={() => agregarProducto(item)}
-              >
-                <Text style={styles.productName}>{item.nombre}</Text>
-                {item.descripcion?.trim() !== '' && (
-                  <Text style={styles.productDescription}>
-                    Descripción: {item.descripcion}
+            <FlatList
+              key={isMobile ? 'list-one-column' : 'list-two-columns'}
+              data={productos}
+              keyExtractor={i => i.id.toString()}
+              numColumns={isMobile ? 1 : 2}
+              columnWrapperStyle={!isMobile && { justifyContent: 'space-between' }}
+              renderItem={({ item }) => (
+                <Pressable style={styles.productCard} onPress={() => agregarProducto(item)}>
+                  <Text
+                    style={styles.productName}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.nombre}
                   </Text>
-                )}
-                <Text style={styles.productPrice}>
-                  {item.precio.toLocaleString('es-CO', {
-                    style: 'currency',
-                    currency: 'COP',
-                  })}
-                </Text>
-              </Pressable>
-            )}
-          />
+                  {item.descripcion?.trim() !== '' && (
+                    <Text
+                      style={styles.productDescription}
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                    >
+                      Descripción: {item.descripcion}
+                    </Text>
+                  )}
+                  <Text style={styles.productPrice}>
+                    {item.precio.toLocaleString('es-CO', {
+                      style: 'currency',
+                      currency: 'COP',
+                    })}
+                  </Text>
+                </Pressable>
+              )}
+            />
+
+
         </View>
 
         {/* Pedido Actual */}

@@ -1,5 +1,4 @@
-// screens/Mesero/screens/MesaScreen.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +12,8 @@ import { useMesaController } from '../controllers/mesaController';
 import AdminSidebar from '../../../components/AdminSidebar';
 import styles from '../styles/mesaStyles';
 
+const MOBILE_BREAKPOINT = 600;
+
 export default function MesaScreen({ usuario, navigation }) {
   const {
     mesas,
@@ -24,18 +25,28 @@ export default function MesaScreen({ usuario, navigation }) {
     setModalVisible,
   } = useMesaController(navigation);
 
-  const isMobile = Dimensions.get('window').width < 600;
+  const [layoutWidth, setLayoutWidth] = useState(Dimensions.get('window').width);
+  const isMobile = layoutWidth < MOBILE_BREAKPOINT;
+
+  useEffect(() => {
+    const onChange = ({ window }) => setLayoutWidth(window.width);
+    const sub = Dimensions.addEventListener('change', onChange);
+    return () => sub?.remove();
+  }, []);
 
   return (
     <View style={styles.wrapper}>
-      {!isMobile && <AdminSidebar />}
+      <AdminSidebar navigation={navigation} activeRoute="Mesas" />
+
       <ScrollView
         style={styles.mainContent}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[
+          styles.contentContainer,
+          isMobile && { paddingHorizontal: 16 },
+        ]}
       >
-
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, isMobile && styles.headerMobile]}>
           <View style={styles.headerIconContainer}>
             <Feather name="grid" size={20} color="#fff" />
           </View>
@@ -46,12 +57,13 @@ export default function MesaScreen({ usuario, navigation }) {
         </View>
 
         {/* Grid de Mesas */}
-        <View style={styles.mesasGrid}>
+        <View style={[styles.mesasGrid, isMobile && styles.mesasGridMobile]}>
           {mesas.map(mesa => (
             <Pressable
               key={mesa.id}
               style={[
                 styles.mesaCard,
+                isMobile && styles.mesaCardMobile,
                 mesa.estado === 'ocupada' && styles.mesaCardOcupada,
               ]}
               onPress={() => abrirMesa(mesa)}
@@ -127,5 +139,5 @@ export default function MesaScreen({ usuario, navigation }) {
         </View>
       </Modal>
     </View>
-);
+  );
 }

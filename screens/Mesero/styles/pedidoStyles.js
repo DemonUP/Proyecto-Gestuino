@@ -65,18 +65,35 @@ export default StyleSheet.create({
     marginBottom: 12,
   },
 
-  // Productos grid
-  productCard: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#E2E8F0',
-    marginBottom: 16,
-    flexBasis: isMobile ? '100%' : '48%',
-  },
-  productName: { fontSize: 16, color: '#2D3748', marginBottom: 4 },
-  productPrice: { fontSize: 14, fontWeight: '600', color: '#FF6B35' },
+// Productos grid
+productCard: {
+  backgroundColor: '#fff',
+  padding: 16,
+  borderRadius: 8,
+  borderWidth: 2,
+  borderColor: '#E2E8F0',
+  marginBottom: 16,
+  flexBasis: isMobile ? '100%' : '48%',
+},
+productName: {
+  fontSize: isMobile ? 15 : 16,
+  fontWeight: '600',
+  color: '#2D3748',
+  marginBottom: 4,
+  flexShrink: 1,
+},
+productDescription: {
+  fontSize: 13,
+  color: '#4B5563',
+  marginBottom: 6,
+  flexShrink: 1,
+},
+productPrice: {
+  fontSize: 14,
+  fontWeight: '600',
+  color: '#FF6B35',
+},
+
 
   // Pedido items
   sectionTitle: {

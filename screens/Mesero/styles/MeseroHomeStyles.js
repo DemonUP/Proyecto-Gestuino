@@ -1,3 +1,4 @@
+// MeseroHomeStyles.js
 import { StyleSheet, Dimensions } from 'react-native';
 
 const isMobile = Dimensions.get('window').width < 600;
@@ -5,40 +6,47 @@ const isMobile = Dimensions.get('window').width < 600;
 export default StyleSheet.create({
   wrapper: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: isMobile ? 'column' : 'row',
     backgroundColor: '#F7FAFC',
   },
   mainContent: {
     flex: 1,
   },
   contentContainer: {
-    padding: 32,
+    padding: isMobile ? 16 : 32,
   },
 
-  /* Estadísticas en Sidebar */
-  sidebarStats: {
+  /** Header */
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 24,
   },
-  sidebarCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 24,
-    borderWidth: 2,
-    borderColor: '#E2E8F0',
-    marginBottom: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+  headerMobile: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 6,
+  },
+  logoutBtnMobile: {
+    width: '100%',
+    backgroundColor: '#f1f1f1',
+    justifyContent: 'center',
+    borderRadius: 8,
+    marginTop: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    alignSelf: 'stretch',
   },
 
-  /* Estadísticas principales */
+  /** Estadísticas */
   statsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
     marginBottom: 24,
   },
+
   statCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
@@ -50,7 +58,14 @@ export default StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
+
+    // 📱 Responsivo: ajusta a móvil y PC
+    width: isMobile ? '100%' : 400,
+    minWidth: isMobile ? '100%' : 360,
+    maxWidth: isMobile ? '100%' : 440,
+    alignSelf: 'center',
   },
+
   statValue: {
     fontSize: 32,
     fontWeight: '700',
@@ -62,15 +77,16 @@ export default StyleSheet.create({
     color: '#2D3748',
   },
 
-  /* Sección Mesas */
+  /** Mesas */
   tablesSection: {
     marginTop: 24,
   },
   cardHeader: {
-    flexDirection: 'row',
+    flexDirection: isMobile ? 'column' : 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: isMobile ? 'flex-start' : 'center',
     marginBottom: 16,
+    gap: isMobile ? 12 : 0,
   },
   cardTitle: {
     fontSize: 18,
@@ -82,15 +98,18 @@ export default StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
+    alignSelf: isMobile ? 'stretch' : 'auto',
   },
   newButtonText: {
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   mesasGrid: {
-    flexDirection: 'row',
+    flexDirection: isMobile ? 'column' : 'row',
     flexWrap: 'wrap',
+    gap: isMobile ? 12 : 0,
   },
   mesaCard: {
     backgroundColor: '#FFFFFF',
@@ -103,6 +122,11 @@ export default StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
+    minWidth: isMobile ? '95%' : 220,
+    maxWidth: isMobile ? '100%' : 330,
+    width: isMobile ? '95%' : 300,
+    alignSelf: isMobile ? 'center' : 'auto',
+    marginRight: isMobile ? 0 : 16,
   },
   mesaHeader: {
     flexDirection: 'row',
