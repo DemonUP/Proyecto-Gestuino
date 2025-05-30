@@ -212,10 +212,12 @@ export function usePedidoController(navigation) {
       .update({
         estado: 'ocupada',
         cantidad_personas: parseInt(cantidadPersonas),
-        descripcion: descripcionMesa || null
+        descripcion: descripcionMesa || null,
+        usuario_id: usuario?.id, // 👈 asignamos el mesero actual
       })
       .eq('id', mesaSeleccionada);
   }
+
 
   const inserts = [];
   for (const [id, cantidad] of Object.entries(grouped)) {

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import supabase from '../../../supabase';
 
 export function useMesaController() {
@@ -8,9 +9,12 @@ export function useMesaController() {
   const [total, setTotal] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
 
-  useEffect(() => {
-    fetchMesas();
-  }, []);
+  // 🔄 Se ejecuta cada vez que la pantalla gana foco
+  useFocusEffect(
+    useCallback(() => {
+      fetchMesas();
+    }, [])
+  );
 
   const fetchMesas = async () => {
     const { data, error } = await supabase.from('mesas').select('*');
@@ -29,7 +33,10 @@ export function useMesaController() {
 
     if (!error) {
       setPedidos(data);
-      const totalCalculado = data.reduce((acc, p) => acc + p.cantidad * p.productos.precio, 0);
+      const totalCalculado = data.reduce(
+        (acc, p) => acc + p.cantidad * p.productos.precio,
+        0
+      );
       setTotal(totalCalculado);
     } else {
       console.error('Error al obtener pedidos:', error);
@@ -45,6 +52,6 @@ export function useMesaController() {
     total,
     modalVisible,
     abrirMesa,
-    setModalVisible
+    setModalVisible,
   };
 }

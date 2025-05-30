@@ -70,9 +70,11 @@ export default function MeseroHome({ usuario, navigation, onLogout }) {
   }, []);
 
   const cargarMesas = async () => {
-    const { data, error } = await supabase
-      .from('mesas')
-      .select(`id, numero, estado, pedidos (cantidad, productos (nombre, precio))`);
+  const { data, error } = await supabase
+    .from('mesas')
+    .select(`id, numero, estado, usuario_id, pedidos (cantidad, productos (nombre, precio))`)
+    .eq('usuario_id', usuario.id);
+
 
     if (error) {
       console.error('Error cargando mesas:', error);
