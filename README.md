@@ -126,5 +126,16 @@ Gestuino/
 - Promociones y combos
 - Reservas de mesas
 
+##Instalacion
+
+```
+npm install
+
+npx expo start 
+
+
+```
+
+
 ## 🧩 Conclusiones
 Gestuino demostró ser una solución completa, funcional y escalable. Supabase permitió centrarse en la lógica sin preocuparse por el backend.
