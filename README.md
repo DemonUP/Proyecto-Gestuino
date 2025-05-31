@@ -126,7 +126,7 @@ Gestuino/
 - Promociones y combos
 - Reservas de mesas
 
-##Instalacion
+## Instalacion
 
 ```
 npm install
