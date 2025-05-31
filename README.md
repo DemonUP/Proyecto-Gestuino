@@ -124,7 +124,6 @@ Gestuino/
 ### Mejoras:
 - Integración de pagos
 - Promociones y combos
-- Reservas de mesas
 
 ## Instalacion
 
