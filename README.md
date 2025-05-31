@@ -128,6 +128,8 @@ Gestuino/
 
 ## Instalacion
 
+### Se hace git clone y se ejecuta en la consola:
+
 ```
 npm install
 
